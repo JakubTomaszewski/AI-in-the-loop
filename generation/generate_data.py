@@ -1,3 +1,9 @@
+import sys
+
+sys.path.append(".")
+sys.path.append("..")
+
+
 from diffusers import StableDiffusionPipeline
 import torch
 import os
@@ -139,7 +145,7 @@ def run_dreambooth(args):
     if args.prompts_path is not None:
         with open(args.prompts_path, "r") as f:
             prompt_dict = json.load(f)
-            prompts = prompt_dict[args.class_name]
+            prompts = prompt_dict[args.class_name][:args.n]
             batch_size = math.ceil(args.n / len(prompts))
     else:
         vanilla_prompt = f"photo of a <new1> {args.class_category}"
@@ -241,7 +247,7 @@ if __name__ == "__main__":
     parser.add_argument("--inf_steps", type=int, default=50)
     
     # Prompts args
-    parser.add_argument("--prompts_path", type=str, default=None)
+    parser.add_argument("--prompts_path", type=str, default=None, help="Path to prompts file.")
     
     # Filtering args
     parser.add_argument("--filter", action="store_true", default=False, help="Filter at inference time")
@@ -272,12 +278,13 @@ if __name__ == "__main__":
 
     pidfile.exit_if_job_done(args.output_path)
     existing_files = list(Path(args.output_path).rglob('*.jpg'))
-    existing = len(existing_files)
-    if existing >= args.n:
-        print(f"{existing}, already done.")
-        sys.exit()
+    # existing = len(existing_files)
+    # if existing >= args.n:
+    #     print(f"{existing} files in directory {args.output_path}.")
+    #     sys.exit()
 
-    args.n = args.n - existing
+    # args.n = args.n - existing
+    existing = 0
     args.offset = existing
     
     print(f"Generating {args.n} images starting from id {args.offset}")

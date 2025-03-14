@@ -1,13 +1,18 @@
-import configargparse
+import sys
+
+sys.path.append('.')
+sys.path.append('..')
+
 import torch
-from contrastive.make_triplets import setup_triplets
-from contrastive.train_custom import train
+from make_triplets import setup_triplets
+from train_custom import train
 from downstream.run_downstream import run_downstream
 from util.misc import (
     make_exp_name, make_triplet_dirname, make_checkpoint_dirname, 
     checkpoint_exists, training_in_progress, set_all_seeds
 )
 from util.data_util import makedirs
+import configargparse
 import json
 import os
 import copy
@@ -115,8 +120,10 @@ def main(args, device):
     set_all_seeds(args.seed)
     
     # Setup paths and save configuration
-    args.exp_name = make_exp_name(args)
-    args.output_path = os.path.join(args.output_path, args.exp_name, str(args.pos_class_name))
+    # args.exp_name = make_exp_name(args)
+    # args.output_path = os.path.join(args.output_path, args.exp_name, str(args.pos_class_name))
+    args.output_path = os.path.join(args.output_path, str(args.pos_class_name))
+    
     makedirs(args.output_path)
     with open(os.path.join(args.output_path, "config.json"), "w") as f:
         json.dump(vars(args), f)
@@ -147,22 +154,25 @@ def main(args, device):
     args.class_id = class_info['class_to_idx'][args.pos_class_name]
 
     args.dataset_csv = os.path.join(triplet_save_root, f"{args.pos_class_name}.csv")
-    if not os.path.exists(args.dataset_csv) or not args.use_existing_triplets:
-        print("Generating triplets")
-        setup_triplets(
-            args.class_id, 
-            args.pos_class_name,
-            args.dataset,
-            args.synthetic_train_pathfile,
-            args.synthetic_train_root,
-            args.num_synthetic,
-            args.negatives_root, 
-            args.real_train_root,
-            args.num_triplets,
-            args.dataset_csv,
-            args.ref_type)
-    else:
-        print("Found existing triplets")
+    
+    # <MODIFIED>
+    # if not os.path.exists(args.dataset_csv) or not args.use_existing_triplets:
+    print("Generating triplets")
+    setup_triplets(
+        args.class_id, 
+        args.pos_class_name,
+        args.dataset,
+        args.synthetic_train_pathfile,
+        args.synthetic_train_root,
+        args.num_synthetic,
+        args.negatives_root, 
+        args.real_train_root,
+        args.num_triplets,
+        args.dataset_csv,
+        args.ref_type)
+    # else:
+        # print("Found existing triplets")
+    # </MODIFIED>
     
     # Check for existing trained model checkpoint, otherwise train a new one
     print("Checking for existing checkpoint")
@@ -177,21 +187,23 @@ def main(args, device):
         eval_epoch = int(eval_epoch)
 
         # Check if training is in progress
-        if training_in_progress(args.ckpt_dir) and not args.debug:
-            print("Training in progress; exiting")
-            sys.exit(0)
+        # if training_in_progress(args.ckpt_dir) and not args.debug:
+        #     print("Training in progress; exiting")
+        #     sys.exit(0)
 
         print(f"Checking for a checkpoint for epoch {eval_epoch}")
         ckpt_exists, ckpt_version_dir = checkpoint_exists(args.ckpt_dir, eval_epoch)
         
-        if not ckpt_exists or not args.train_use_existing_checkpoint:
-            # Train new personalized model
-            print("Training custom model")
-            makedirs(args.ckpt_dir)
-            train(args, device)
-            ckpt_exists, ckpt_version_dir = checkpoint_exists(args.ckpt_dir, eval_epoch)
-        else:
-            print(f"Found existing checkpoint at {ckpt_version_dir}")
+        # <MODIFIED>
+        # if not ckpt_exists or not args.train_use_existing_checkpoint:
+        # Train new personalized model
+        print("Training custom model")
+        makedirs(args.ckpt_dir)
+        train(args, device)
+        ckpt_exists, ckpt_version_dir = checkpoint_exists(args.ckpt_dir, eval_epoch)
+        # else:
+            # print(f"Found existing checkpoint at {ckpt_version_dir}")
+        # </MODIFIED>
     
         # Run downstream tasks for this class/evaluation epoch
         assert ckpt_exists
@@ -202,7 +214,8 @@ def main(args, device):
             for task in downstream_tasks:
                 args.downstream_task = task 
                 print(f"Running {args.downstream_task} at epoch {args.eval_epoch}")
-                run_downstream(args, device, class_info)
+
+                run_downstream(args, device, class_info, args.output_path)
         else:
             print("Skipping evaluation")
             

@@ -42,14 +42,14 @@ def parse_args():
     parser.add_argument('--cache_dir', type=str, default="./cache", help='path to pretrained ViT checkpoints')
 
     # Downstream eval setup
-    parser.add_argument("--downstream_tasks", type=str, default="global_tasks,dense_tasks")
+    parser.add_argument("--downstream_tasks", type=str, default="global_tasks")  # "global_tasks,dense_tasks"
     parser.add_argument("--downstream_batch_size", type=int, default=1, help="Batch size for computing embeddings")
     parser.add_argument("--downstream_workers", type=int, default=10)
     parser.add_argument("--persam", action="store_true")
 
     return parser.parse_args()
 
-def run_downstream(args, device, class_info):
+def run_downstream(args, device, class_info, output_path):
     """
     Run downstream tasks based on the provided arguments.
 
@@ -62,9 +62,6 @@ def run_downstream(args, device, class_info):
     makedirs(args.embed_path)
     set_all_seeds(args.seed)
 
-    output_path = os.path.join(args.output_path, f"epoch_{args.eval_epoch}_{args.downstream_task}_outputs")
-    if args.persam:
-        output_path = os.path.join(args.output_path, f"epoch_{args.eval_epoch}_{args.downstream_task}_persam_outputs")
     makedirs(output_path)
     if not args.debug:
         if pidfile.check_if_job_done(output_path):
@@ -79,6 +76,7 @@ def run_downstream(args, device, class_info):
     for model_name in all_models:
         print("Using model ", model_name)
         ckpt_dir = all_ckpts[ckpt_index] if "custom" in model_name else None
+        print("Using checkpoint ", ckpt_dir)
         model, preprocess = model_factory.load(model_name, checkpoint=ckpt_dir, load_epoch=args.eval_epoch)
         model_fn = model_factory.get_global_fn(model, model_name)
 
@@ -98,7 +96,7 @@ def run_downstream(args, device, class_info):
         if "custom" in model_name:
             ckpt_index += 1
 
-    with open(os.path.join(output_path, f"results.json"), "w") as f:
+    with open(os.path.join(output_path, "results.json"), "w") as f:
         json.dump(all_results, f)
 
     if not args.debug:

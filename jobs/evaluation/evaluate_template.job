@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu
+#SBATCH --gpus=1
+#SBATCH --job-name=InstallEnvironment
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=18
+#SBATCH --time=20:00:00
+#SBATCH --output=slurm_output_%A.out
+
+module purge
+module load 2022
+module load Anaconda3/2022.05
+
+source activate prpg
+
+cd $HOME/personalized-rep
+
+python contrastive/main.py \
+ --pos_class_name='${CLASS_NAME}' \
+ --seed='1234' \
+ --tag='full_train_eval' \
+ --dataset='pods' \
+ --real_data_root='./data/pods' \
+ --synthetic_train_root='${SYNTHETIC_DATA_PATH}' \
+ --negatives_root='./synthetic_data/pods/pods_negatives' \
+ --output_path='${OUTPUT_PATH}' \
+ --cache_dir='/scratch-shared/jtomaszewski/personalized_reps/cache' \
+ --embed_path='/scratch-shared/jtomaszewski/personalized_reps/embeddings' \
+ --num_triplets='${NUM_TRIPLETS}' \
+ --num_synthetic='${NUM_SYNTHETIC_SAMPLES}' \
+ --train_model_type='dinov2_vitb14' \
+ --train_batch_size='16' \
+ --train_epochs='2' \
+ --train_loss_fn='info_nce_fixed' \
+ --eval_models='custom_lora_dinov2_vitb14,dinov2_vitb14' \
+ --eval_epoch='2' \
+ --downstream_task='global_tasks' \
+ --downstream_batch_size='2' \
+ --downstream_workers='16' \
+ --dataset_info='${DATASET_METADATA}' \
+ --train_augment \
+ --use_lora \
+ --patch_tokens \
+ --use_existing_triplets \
+ --train_use_existing_checkpoint
+
+
+#  --synthetic_train_root='/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/dreambooth_llm_sd1.5/cfg_5.0' \

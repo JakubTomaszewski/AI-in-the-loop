@@ -108,7 +108,7 @@ def setup_triplets(
     if synthetic_pathfile is not None:
         synthetic_train_paths = load_pathfile(synthetic_pathfile)[cls]
     elif synthetic_root is not None:
-        synthetic_train_paths = load_paths_from_root(synthetic_root, cls_name)
+        synthetic_train_paths = load_paths_from_root(synthetic_root, cls_name, num_samples=num_synthetic)
     else:
         raise ValueError("No synthetic paths given.")
 

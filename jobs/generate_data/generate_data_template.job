@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu
+#SBATCH --gpus=1
+#SBATCH --job-name=InstallEnvironment
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=18
+#SBATCH --time=20:00:00
+#SBATCH --output=slurm_output_%A.out
+
+module purge
+module load 2022
+module load Anaconda3/2022.05
+
+source activate prpg
+
+cd $HOME/personalized-rep
+
+python generation/generate_data.py \
+    --model_path='/scratch-shared/jtomaszewski/personalized_reps/finetuned_models/dreambooth_stable-diffusion-v1-5_stable-diffusion-v1-5_2e-06_400' \
+    --class_name='${CLASS_NAME}' \
+    --class_category='${CLASS_CATEGORY}' \
+    --output_path='${OUTPUT_PATH}' \
+    --guidance='5.0' \
+    --batch_size='1' \
+    --inf_steps='50' \
+    --n='${NUM_SAMPLES}' \
+    --prompts_path='${PROMPTS_PATH}'

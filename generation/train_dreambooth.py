@@ -13,6 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
+import sys
+
+sys.path.append(".")
+sys.path.append("..")
+
 import argparse
 import copy
 import gc
@@ -30,6 +35,8 @@ import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint
 import transformers
+
+from copy import deepcopy
 from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.utils import ProjectConfiguration, set_seed
@@ -41,6 +48,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from tqdm.auto import tqdm
 from transformers import AutoTokenizer, PretrainedConfig
+
 from util.data_util import IMAGE_EXTENSIONS
 from util.data_util import makedirs
 import diffusers
@@ -563,6 +571,11 @@ def parse_args(input_args=None):
         "--class_category",
         required=False,
         default=None
+    )
+    parser.add_argument(
+        "--all_class_categories",
+        required=False,
+        action="store_true"
     )
 
     if input_args is not None:
@@ -1411,4 +1424,27 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args)
+    
+    if args.class_name is None and args.all_class_categories:
+        print("Training for all class categories")
+        
+        with open(os.path.join(args.instance_data_dir, "..", "metadata.json"), "r") as f:
+            classes = json.load(f)["class_to_sc"]
+            
+        for class_name, class_category in classes.items():
+            class_args = deepcopy(args)
+
+            class_args.class_name = class_name
+            class_args.class_category = class_category
+            
+            print("Training for class - ", class_name, "of category - ", class_category)
+            main(class_args)
+    else:
+        print("Training for class - ", args.class_name)
+        main(args)
+        
+        # for class_name in class_categories:
+        #     args.class_name = class_name
+    
+    
+    # main(args)

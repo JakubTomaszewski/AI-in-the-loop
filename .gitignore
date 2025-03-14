@@ -1,0 +1,16 @@
+data/
+synthetic_data/
+
+.env
+cache/
+__pycache__/
+*.pth
+
+*.log
+llm_trainer_metadata/
+
+generate_data_scripts/
+train_dreambooth_scripts/
+evaluate_scripts/
+*.out
+done.txt

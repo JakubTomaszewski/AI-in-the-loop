@@ -76,7 +76,7 @@ def load_pathfile(pathfile):
             evaled_pathfile[k] = v
     return evaled_pathfile
 
-def load_paths_from_root(root, cls):
+def load_paths_from_root(root, cls, num_samples=None):
     """
     Load all file paths from the root directory for a given class.
 
@@ -87,4 +87,7 @@ def load_paths_from_root(root, cls):
     Returns:
         list: A list of file paths for the given class.
     """
-    return get_paths(os.path.join(root, cls))
+    if num_samples is not None:
+        return sorted(get_paths(os.path.join(root, cls))[:num_samples])
+    else:
+        return sorted(get_paths(os.path.join(root, cls)))
