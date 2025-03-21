@@ -14,7 +14,7 @@ def parse_args():
     parser.add_argument(
         "--num_synthetic_samples",
         type=int,
-        default=50,
+        default=200,
         help="Initial number of synthetic samples to generate for each class.",
     )
 
@@ -57,27 +57,27 @@ def parse_args():
         "--generated_prompts_path",
         type=str,
         help="Output path for generated prompts",
-        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/iteration_{iteration_number}/prompts.json",
+        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/{timestamp}/iteration_{iteration_number}/prompts.json",
     )
 
     parser.add_argument(
         "--prompt_summaries_path",
         type=str,
         help="Output path for prompt summaries",
-        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/iteration_{iteration_number}/prompt_summaries.json",
+        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/{timestamp}/iteration_{iteration_number}/prompt_summaries.json",
     )
 
     parser.add_argument(
         "--prompt_generation_strategy_path",
         type=str,
         help="Path to the prompt generation strategy file",
-        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/iteration_{iteration_number}/prompt_generation_strategies.json",
+        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/{timestamp}/iteration_{iteration_number}/prompt_generation_strategies.json",
     )
 
     parser.add_argument(
         "--class_performance_output_path",
         type=str,
-        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/iteration_{iteration_number}/class_performance.json",
+        default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/{timestamp}/iteration_{iteration_number}/class_performance.json",
         help="Path to the output class performance file.",
     )
 

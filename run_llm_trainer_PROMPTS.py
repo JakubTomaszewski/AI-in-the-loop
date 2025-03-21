@@ -4,7 +4,7 @@ A LLM-based training which controls an end-to-end training pipeline. Three stage
 * given all the summaries and the performances, ask the LLM to generate a high level strategy how new images should be generated for each class in one call
 * per-class: turn this high-level strategy into hundreds of prompts
 """
-
+import re
 import sys
 import os
 import asyncio
@@ -145,7 +145,7 @@ async def generate_prompts_all_classes(
                 "object_category": object_categories[class_name],
             }
         )
-        prompts = prompts.prompts
+        prompts = [parse_prompt(prompt) for prompt in prompts.prompts]
 
         print(f"Num prompts: {len(prompts)} for class: {class_name}")
         # assert len(prompts) == args.num_synthetic_samples  # TODO: Add a mechanism for checking whether the number of prompts is correct/close to the expected number
@@ -194,6 +194,16 @@ async def summarize_all_classes(class_names, generated_prompts: dict) -> dict[st
 #     )
 
 
+def parse_prompt(prompt_str):
+    """
+    Removes the 'Prompt NUMBER:' prefix from the prompt string.
+    Example:
+    Input: "Prompt 1: A close-up image of a <new1> mug on a table, with a cup of coffee next to it, and a book in the background"
+    Output: "A close-up image of a <new1> mug on a table, with a cup of coffee next to it, and a book in the background"
+    """
+    return re.sub(r'^Prompt\s+\d+:\s+', '', prompt_str)
+
+
 if __name__ == "__main__":
     args = parse_args()
 
@@ -228,12 +238,18 @@ if __name__ == "__main__":
     # Initially - no strategy
     prompt_generation_strategy = PromptStrategy(
         class_strategies=defaultdict(
-            lambda: "No strategy for now. Generate prompts randomly based on the class."
+            lambda: """Generate extremely simple and short prompts randomly for each class.
+            The prompts should say that the object is in some place or scenario that is relevant to the object.
+            For example:
+            "A <new1> mug on a stool",
+            "A <new1> mug on a table",
+            "A <new1> mug in a sink full of dishes",
+            "A <new1> mug on a picnic blanket",
+            
+            Do not overcomplicate the prompts. Keep them simple and relevant to the object.
+            """
         )
     )
-
-    # Clean up the generate_data_output_path directory
-    shutil.rmtree(args.generate_data_output_path, ignore_errors=True)
 
     iteration_number = 0
     while iteration_number < args.max_loop_iterations:
@@ -250,6 +266,7 @@ if __name__ == "__main__":
 
         # Save the generated prompts to a file
         generated_prompts_path = args.generated_prompts_path.format(
+            timestamp=current_time,
             iteration_number=iteration_number
         )
         os.makedirs(os.path.dirname(generated_prompts_path), exist_ok=True)
@@ -260,7 +277,7 @@ if __name__ == "__main__":
 
         ##### 2. Generate data using the generated prompts #####
         generate_data_output_path = os.path.join(
-            args.generate_data_output_path, f"iteration_{iteration_number}"
+            args.generate_data_output_path, current_time, f"iteration_{iteration_number}"
         )
         # os.makedirs(generate_data_output_path, exist_ok=True)
 
@@ -283,6 +300,7 @@ if __name__ == "__main__":
         logger.info(f"Generated data using the provided prompts.")
 
         class_performance_output_path = args.class_performance_output_path.format(
+            timestamp=current_time,
             iteration_number=iteration_number
         )
 
@@ -314,6 +332,7 @@ if __name__ == "__main__":
 
         # Save the prompt summaries to a file
         prompt_summaries_path = args.prompt_summaries_path.format(
+            timestamp=current_time,
             iteration_number=iteration_number
         )
         os.makedirs(os.path.dirname(prompt_summaries_path), exist_ok=True)
@@ -341,6 +360,7 @@ if __name__ == "__main__":
 
         # Save the prompt generation strategy to a file
         prompt_generation_strategy_path = args.prompt_generation_strategy_path.format(
+            timestamp=current_time,
             iteration_number=iteration_number
         )
         os.makedirs(os.path.dirname(prompt_generation_strategy_path), exist_ok=True)

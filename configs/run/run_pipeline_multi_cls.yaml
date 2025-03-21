@@ -1,6 +1,6 @@
 filename: contrastive/main.py
 
-arguments: 
+arguments:
   # General settings
   seed: 1234
   tag: full_train_eval
@@ -8,7 +8,7 @@ arguments:
   # Dataset settings
   dataset: pods
   real_data_root: ./data/pods
-  synthetic_train_root: ./synthetic_data/pods/dreambooth_llm_masked_filtered_sd1.5/cfg_5.0
+  synthetic_train_root: /scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/dreambooth_llm_sd1.5/cfg_5.0
   negatives_root: ./synthetic_data/pods/pods_negatives
 
   # Training configuration
@@ -29,13 +29,114 @@ arguments:
   eval_epoch: 2
 
   # Downstream task settings
-  downstream_task: global_tasks,dense_tasks
+  downstream_task: global_tasks
   downstream_batch_size: 2
   downstream_workers: 16
 
   # Dataset info (optional)
-  dataset_info: ./data/pods/pods_info.json
+  dataset_info: ./data/pods/metadata.json
 
 sweep_args:
-  pos_class_name: ["totes_paris_2024", "totes_switzerland", "totes_blank"]
-
+  pos_class_name:
+    [
+      "mugs_cornell_dots",
+      "mugs_black_schwartzman",
+      "mugs_blue_leaves",
+      "mugs_black_neurips",
+      "mugs_white_s",
+      "mugs_blue_flowers",
+      "mugs_wiml",
+      "mugs_tech_twinkles",
+      "mugs_red_cat",
+      "mugs_light_green",
+      "mugs_blue_neurips",
+      "mugs_red_mit",
+      "mugs_pink_orange",
+      "mugs_christmas",
+      "mugs_black_purple",
+      "mugs_pink_plain",
+      "mugs_blue_greek",
+      "mugs_green_patterned",
+      "mugs_orange_jane_st",
+      "mugs_taylor_swift",
+      "totes_ecovyst",
+      "totes_ecf_2019",
+      "totes_roses",
+      "totes_mit_eecs",
+      "totes_yellow_pineapple",
+      "totes_ma_bay_trading",
+      "totes_starry_seattle",
+      "totes_trader_joes_boston",
+      "totes_ampersand",
+      "totes_daunt_books",
+      "totes_paris_2024",
+      "totes_switzerland",
+      "totes_blank",
+      "totes_gwich_threads_treads",
+      "totes_shoprite_fruit",
+      "totes_riveted",
+      "totes_cpl",
+      "totes_yellow_cat",
+      "totes_deepmind",
+      "totes_life_alive",
+      "bottles_caltech_y",
+      "bottles_white_coffee",
+      "bottles_mit_eecs",
+      "bottles_blue_microsoft",
+      "bottles_white_hydroflask",
+      "bottles_neon_pink",
+      "bottles_clear_black_top",
+      "bottles_dark_mark",
+      "bottles_black_ibm",
+      "bottles_clear_green",
+      "bottles_icvss_2024",
+      "bottles_uber_ai",
+      "bottles_adobe",
+      "bottles_white_a",
+      "bottles_clear_white_top",
+      "bottles_pink_rei",
+      "bottles_white_stanley",
+      "bottles_ai2",
+      "bottles_black_dots",
+      "bottles_dark_blue_coffee",
+      "screwdrivers_white_black_top",
+      "screwdrivers_light_yellow",
+      "screwdrivers_black_fat",
+      "screwdrivers_small_black",
+      "screwdrivers_red_black_fat",
+      "screwdrivers_yellow_black",
+      "screwdrivers_white_blue_top",
+      "screwdrivers_red_black_thin",
+      "screwdrivers_yellow_red_stripe",
+      "screwdrivers_dark_yellow",
+      "screwdrivers_red_black_long",
+      "screwdrivers_small_white",
+      "screwdrivers_grey_small_red_bottom",
+      "screwdrivers_white_blue_stripe_black_top",
+      "screwdrivers_white_red_blue_top",
+      "screwdrivers_maroon",
+      "screwdrivers_white_blue_stripe",
+      "screwdrivers_yellow_black_spots",
+      "screwdrivers_blue_grey",
+      "screwdrivers_red_black_spots",
+      "shoes_red_nike",
+      "shoes_white_adidas",
+      "shoes_white_black_swirl",
+      "shoes_black_asic",
+      "shoes_black_heels",
+      "shoes_off_white_nike",
+      "shoes_black_on",
+      "shoes_grey_pink_asic",
+      "shoes_white_sandals",
+      "shoes_blue_pink_asic",
+      "shoes_black_sandals",
+      "shoes_black_flip_flops",
+      "shoes_neon_blue",
+      "shoes_navy_flats",
+      "shoes_black_white_stripe_slipon",
+      "shoes_tennis_shoes",
+      "shoes_blue_white_strip_slipon",
+      "shoes_light_pink",
+      "shoes_black_slipon",
+      "shoes_white_nike_textured",
+    ]
