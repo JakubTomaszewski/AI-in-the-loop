@@ -1,7 +1,10 @@
+bitsandbytes
 clip @ git+https://github.com/openai/CLIP.git@a1d071733d7111c9c014f024669f959182114e33
+diffusers @ git+https://github.com/huggingface/diffusers@a7d53a59394d5d8367826663601b69828e9f74fc
 configargparse
 open-clip-torch==2.24.0
 opencv-python==4.10.0.84
+python-dotenv
 pandas
 peft==0.12.0
 pycocotools==2.0.8
@@ -10,3 +13,10 @@ scikit-image
 scikit-learn
 tensorboard
 torch==2.3.0
+langchain-core==0.3.34
+langchain-groq==0.2.4
+langchain-openai==0.3.4
+langchain-community==0.3.17
+loguru
+numpy
+tqdm
