@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument("--template", type=str, help="Job file template")
     parser.add_argument("--output", type=str, help="Output directory for job files")
     parser.add_argument(
-        "--wait_time", type=int, help="Wait time between job submissions", default=240
+        "--wait_time", type=int, help="Wait time between job submissions", default=300
     )
     parser.add_argument(
         "--class_performance_output_path",
@@ -112,7 +112,9 @@ if __name__ == "__main__":
         
         logger.info(f"Job ID: {job_id}")
 
-        sleep(args.wait_time)
+        # Wait until the job is finished
+        sleep(60)
+        check_job_status([job_id])
 
     logger.info("All job files have been submitted. Waiting for all jobs to complete.")
     check_job_status(job_ids)

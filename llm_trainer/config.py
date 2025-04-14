@@ -14,7 +14,7 @@ def parse_args():
     parser.add_argument(
         "--num_synthetic_samples",
         type=int,
-        default=200,
+        default=50,
         help="Initial number of synthetic samples to generate for each class.",
     )
 
@@ -28,7 +28,8 @@ def parse_args():
     parser.add_argument(
         "--generation_template_file",
         type=str,
-        default="/home/jtomaszewski/personalized-rep/jobs/generate_data/generate_data_template.job",
+        default="/home/jtomaszewski/personalized-rep/jobs/generate_data/generate_data_lora_sd3_template.job",
+        # default="/home/jtomaszewski/personalized-rep/jobs/generate_data/generate_data_template.job",
         help="Path to the template file to use for generating data.",
     )
 
@@ -42,7 +43,7 @@ def parse_args():
     parser.add_argument(
         "--temperature",
         type=float,
-        default=0.0,
+        default=0.3,
         help="Temperature for the model",
     )
 
@@ -50,7 +51,7 @@ def parse_args():
         "--generate_data_output_path",
         type=str,
         help="Output path for generated data",
-        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods",
+        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_lora",
     )
 
     parser.add_argument(

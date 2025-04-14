@@ -14,7 +14,7 @@ def parse_args():
     parser.add_argument("--template", type=str, help="Job file template")
     parser.add_argument("--output", type=str, help="Output directory for job files")
     parser.add_argument(
-        "--wait_time", type=int, help="Wait time between job submissions", default=90
+        "--wait_time", type=int, help="Wait time between job submissions", default=None
     )
     parser.add_argument(
         "--generate_data_output_path",
@@ -55,6 +55,9 @@ def check_job_status(job_ids):
 if __name__ == "__main__":
     args = parse_args()
 
+    if args.wait_time is None:
+        args.wait_time = args.num_samples * 2
+
     logger.add(
         f"{args.log_file}_generate_data_all_classes_parallel.log",
         format="{time} {level} {message}",
@@ -90,7 +93,9 @@ if __name__ == "__main__":
 
             f.write(job_file)
 
-        logger.info(f"Saved job file for class: {class_name} to path: {output_job_file_path}")
+        logger.info(
+            f"Saved job file for class: {class_name} to path: {output_job_file_path}"
+        )
 
         # Run sbatch output_job_file_path
         logger.info(f"Submitting job file for class: {class_name}")
@@ -103,7 +108,9 @@ if __name__ == "__main__":
 
         logger.info(f"Job ID: {job_id}")
 
-        sleep(args.wait_time)
+        # Wait until the job is finished
+        sleep(60)
+        check_job_status([job_id])
 
     logger.info("All job files have been submitted. Waiting for all jobs to complete.")
     check_job_status(job_ids)

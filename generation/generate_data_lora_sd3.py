@@ -139,7 +139,8 @@ def run_dreambooth(args):
         None
     """
 
-    pipe = StableDiffusion3Pipeline.from_pretrained(args.model_path, torch_dtype=torch.float32).to(device)
+    pipe = StableDiffusion3Pipeline.from_pretrained(args.base_model, torch_dtype=torch.float16).to(device)
+    pipe.load_lora_weights(args.model_path)
     pipe.safety_checker = lambda images, **kwargs: (images, [False] * len(images))
     
     if args.prompts_path is not None:
@@ -154,7 +155,6 @@ def run_dreambooth(args):
         prompts = [vanilla_prompt for _ in range(num_prompts)]
 
     if args.filter:
-        print("Applying filtering")
         from dreamsim import dreamsim
         os.makedirs(args.rej_path, exist_ok=True)
 
@@ -236,6 +236,7 @@ def run_dreambooth(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("--base_model", type=str, required=True, help="Path to base DreamBooth model.")
     parser.add_argument("--model_path", type=str, required=True, help="Path to finetuned DreamBooth checkpoint.")
     parser.add_argument("--class_name", type=str, required=True, help="Class name.")
     parser.add_argument("--class_category", type=str, required=True, help="Class semantic category.")

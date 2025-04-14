@@ -4,7 +4,7 @@ sys.path.append(".")
 sys.path.append("..")
 
 
-from diffusers import StableDiffusion3Pipeline
+from diffusers import StableDiffusionPipeline
 import torch
 import os
 import argparse
@@ -130,7 +130,7 @@ def prepare_persam(train_imgs, train_masks):
 
 def run_dreambooth(args):
     """
-    Generate images using StableDiffusion3Pipeline with DreamBooth and LLM prompts.
+    Generate images using StableDiffusionPipeline with DreamBooth and LLM prompts.
 
     Args:
         args (argparse.Namespace): Arguments for the function.
@@ -139,7 +139,7 @@ def run_dreambooth(args):
         None
     """
 
-    pipe = StableDiffusion3Pipeline.from_pretrained(args.model_path, torch_dtype=torch.float32).to(device)
+    pipe = StableDiffusionPipeline.from_pretrained(args.model_path, torch_dtype=torch.float16).to(device)
     pipe.safety_checker = lambda images, **kwargs: (images, [False] * len(images))
     
     if args.prompts_path is not None:
@@ -154,7 +154,6 @@ def run_dreambooth(args):
         prompts = [vanilla_prompt for _ in range(num_prompts)]
 
     if args.filter:
-        print("Applying filtering")
         from dreamsim import dreamsim
         os.makedirs(args.rej_path, exist_ok=True)
 
@@ -272,8 +271,8 @@ if __name__ == "__main__":
     if args.filter:
         method_name += "_filtered_dinov2"
     
-    args.rej_path = os.path.join(args.output_path, f"{method_name}_sd3", f"cfg_{args.guidance}", f"{args.class_name}_rej")
-    args.output_path = os.path.join(args.output_path, f"{method_name}_sd3", f"cfg_{args.guidance}", args.class_name)
+    args.rej_path = os.path.join(args.output_path, f"{method_name}_sd1.5", f"cfg_{args.guidance}", f"{args.class_name}_rej")
+    args.output_path = os.path.join(args.output_path, f"{method_name}_sd1.5", f"cfg_{args.guidance}", args.class_name)
     if not os.path.exists(args.output_path):
         os.makedirs(args.output_path, exist_ok=True)
 

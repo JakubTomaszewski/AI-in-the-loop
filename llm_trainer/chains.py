@@ -2,18 +2,11 @@ from enum import Enum
 from llm_trainer import prompts
 
 from typing import List
-from langchain_core.output_parsers import (
-    PydanticOutputParser,
-    StrOutputParser,
-    CommaSeparatedListOutputParser,
-    ListOutputParser
-)
+from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableLambda
-from langchain_groq.chat_models import ChatGroq
-from langchain_openai.chat_models import ChatOpenAI
 
-from llm_trainer.data_types import ClassDetails, ClassInformation, PromptStrategy, Prompts
+from llm_trainer.data_types import ClassInformation, PromptStrategy, Prompts
 
 
 class ChainType(Enum):
@@ -46,9 +39,7 @@ class ChainFactory:
         return chain
 
     def create_prompt_generation_chain(self):
-        prompt_generation_output_parser = PydanticOutputParser(
-            pydantic_object=Prompts
-        )
+        prompt_generation_output_parser = PydanticOutputParser(pydantic_object=Prompts)
         prompt_generation_prompt = PromptTemplate(
             template=prompts.PROMPT_GENERATION_PROMPT,
             input_variables=["prompt_strategy", "num_prompts", "object_category"],
@@ -70,7 +61,9 @@ class ChainFactory:
 
     def create_prompt_summarization_chain(self):
         def format_prompts(prompts):
-            formatted_prompts = "\n,".join(f"'{prompt}'" for prompt in prompts["prompts"]["prompts"])
+            formatted_prompts = "\n,".join(
+                f"'{prompt}'" for prompt in prompts["prompts"]["prompts"]
+            )
             return "[\n" + formatted_prompts + "\n]"
 
         prompt_summarization_output_parser = StrOutputParser()
@@ -79,7 +72,9 @@ class ChainFactory:
             input_variables=["prompts"],  # List of prompts
         )
         chain: Runnable[List[str], str] = (
-            {"prompts": RunnablePassthrough()}  # TODO: Debug this as the prompts are not passed correctly
+            {
+                "prompts": RunnablePassthrough()
+            }  # TODO: Debug this as the prompts are not passed correctly
             | RunnableLambda(format_prompts)
             | prompt_summarization_prompt
             | self.llm

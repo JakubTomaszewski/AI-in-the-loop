@@ -64,9 +64,8 @@ Rules to follow:
 3. Each prompt can have a maximum of 15 words.
 4. Ensure that the prompts are concise and relevant to the class. 
 5. If the class is an object, it should not be doing an action. Instead, come up with a relevant scene or setting for the object.
-6. Do not change the object itself. I.e. don't change the color or material of the object.
+6. Only modify the background, scene, or setting around the object. Do not change the object itself. I.e. don't change the color, material or anything else related to the object.
 7. Be creative and think about how the prompts can be improved to generate more relevant synthetic images for each class.
-8. Do not modify the object itself, only the scene or setting around it.
 
 </instructions>
 

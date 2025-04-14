@@ -26,7 +26,6 @@ from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.prompts import PromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from langchain_groq.chat_models import ChatGroq
 from langchain_openai.chat_models import ChatOpenAI
 
 
@@ -237,9 +236,7 @@ if __name__ == "__main__":
             "format_instructions": output_parser.get_format_instructions()
         },
     )
-    # llm = ChatGroq(model="llama-3.1-8b-instant", temperature=args.temperature)
-    # llm = ChatOpenAI(model="gpt-4o", temperature=args.temperature)
-    llm = ChatOpenAI(model="o1-mini")
+    llm = ChatOpenAI(model="o3-mini")
 
     chain = (
         {"metric_history": RunnablePassthrough() | format_history}

@@ -20,7 +20,6 @@ from loguru import logger
 
 load_dotenv()
 
-from langchain_groq.chat_models import ChatGroq
 from langchain_openai.chat_models import ChatOpenAI
 from datetime import datetime
 
@@ -218,8 +217,7 @@ if __name__ == "__main__":
 
     logger.info(f"Running LLM trainer for {len(class_names)} classes: {class_names}")
 
-    # llm = ChatGroq(model="llama-3.1-8b-instant", temperature=args.temperature)
-    llm = ChatOpenAI(model="o1-mini")
+    llm = ChatOpenAI(model="o3-mini")
     chain_factory = ChainFactory(llm)
 
     # Strategy generation
@@ -287,6 +285,11 @@ if __name__ == "__main__":
             "/scratch-shared/jtomaszewski/personalized_reps/evaluation_output/",
             ignore_errors=True,
         )
+        
+        if os.path.exists("/scratch-shared/jtomaszewski/personalized_reps/evaluation_output"):
+            subprocess.run(
+                "rm /scratch-shared/jtomaszewski/personalized_reps/evaluation_output"
+            )
 
         logger.info("Generating data using the generated prompts")
 
@@ -313,7 +316,7 @@ if __name__ == "__main__":
             class_performance_output_path,
             args.dataset_metadata_path,
             args.evaluation_template_file,
-            os.path.join(generate_data_output_path, "dreambooth_llm_sd1.5/cfg_5.0"),
+            os.path.join(generate_data_output_path, "dreambooth_llm_sd3/cfg_5.0"),
             args.num_synthetic_samples,
         )
 

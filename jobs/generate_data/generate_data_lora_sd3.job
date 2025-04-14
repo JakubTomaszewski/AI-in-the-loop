@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu_a100
+#SBATCH --gpus=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=18
+#SBATCH --time=20:00:00
+#SBATCH --output=slurm_output_%A.out
+
+module purge
+# module load 2024
+# module load Anaconda3/2024.06-1
+module load 2022
+module load Anaconda3/2022.05
+
+cd $HOME/personalized-rep
+
+# source activate prpg_sd3
+source activate prpg
+
+python generation/generate_data_lora_sd3.py \
+    --base_model='stabilityai/stable-diffusion-3-medium-diffusers' \
+    --model_path='/scratch-shared/jtomaszewski/personalized_reps/finetuned_models_LORA_DEBUG/dreambooth_stabilityai_stable-diffusion-3-medium-diffusers_0.0001_500/' \
+    --class_name='bottles_blue_microsoft' \
+    --class_category='bottle' \
+    --output_path='/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_LORA_DEBUG' \
+    --guidance='5.0' \
+    --batch_size='1' \
+    --inf_steps='100' \
+    --n='10' \
+    --prompts_path='./configs/prompts/gpt_prompts_pods.json'

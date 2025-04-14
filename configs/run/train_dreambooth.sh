@@ -1,7 +1,7 @@
 #!/bin/bash
 
 python generation/train_dreambooth.py \
-    --pretrained_model_name_or_path='stable-diffusion-v1-5/stable-diffusion-v1-5' \
+    --pretrained_model_name_or_path='stabilityai/stable-diffusion-3-medium' \
     --instance_data_dir='./data/pods/train' \
     --class_data_dir='./synthetic_data/pods/pods_class_data_dir' \
     --output_dir='./finetuned_models' \

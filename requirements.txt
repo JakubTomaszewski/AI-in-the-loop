@@ -14,7 +14,6 @@ scikit-learn
 tensorboard
 torch==2.3.0
 langchain-core==0.3.34
-langchain-groq==0.2.4
 langchain-openai==0.3.4
 langchain-community==0.3.17
 loguru
