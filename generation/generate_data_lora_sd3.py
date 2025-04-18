@@ -273,19 +273,15 @@ if __name__ == "__main__":
     if args.filter:
         method_name += "_filtered_dinov2"
     
-    args.rej_path = os.path.join(args.output_path, f"{method_name}_sd3", f"cfg_{args.guidance}", f"{args.class_name}_rej")
-    args.output_path = os.path.join(args.output_path, f"{method_name}_sd3", f"cfg_{args.guidance}", args.class_name)
+    args.rej_path = os.path.join(args.output_path, f"{args.class_name}_rej")
+    args.output_path = os.path.join(args.output_path, args.class_name)
     if not os.path.exists(args.output_path):
+        print(f"Creating output directory {args.output_path} as it does not exist.")
         os.makedirs(args.output_path, exist_ok=True)
+    else:
+        print(f"Found output directory {args.output_path} with {len(os.listdir(args.output_path))} files.")
 
-    pidfile.exit_if_job_done(args.output_path)
     existing_files = list(Path(args.output_path).rglob('*.jpg'))
-    # existing = len(existing_files)
-    # if existing >= args.n:
-    #     print(f"{existing} files in directory {args.output_path}.")
-    #     sys.exit()
-
-    # args.n = args.n - existing
     existing = 0
     args.offset = existing
     

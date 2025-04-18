@@ -277,6 +277,15 @@ if __name__ == "__main__":
         generate_data_output_path = os.path.join(
             args.generate_data_output_path, current_time, f"iteration_{iteration_number}"
         )
+
+        # Copy the existing generations from the previous iteration
+        if args.append_generated_data and iteration_number > 0:
+            previous_iteration_path = os.path.join(
+                args.generate_data_output_path, current_time, f"iteration_{iteration_number - 1}"
+            )
+            shutil.copytree(previous_iteration_path, generate_data_output_path)
+            
+        
         # os.makedirs(generate_data_output_path, exist_ok=True)
 
         logger.info(f"Path for generated data: {generate_data_output_path}")
@@ -316,8 +325,8 @@ if __name__ == "__main__":
             class_performance_output_path,
             args.dataset_metadata_path,
             args.evaluation_template_file,
-            os.path.join(generate_data_output_path, "dreambooth_llm_sd3/cfg_5.0"),
-            args.num_synthetic_samples,
+            generate_data_output_path,
+            args.num_synthetic_samples * (iteration_number + 1) if args.append_generated_data else args.num_synthetic_samples,
         )
 
         logger.info(

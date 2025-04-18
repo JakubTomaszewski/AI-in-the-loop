@@ -95,5 +95,11 @@ def parse_args():
         default="/scratch-shared/jtomaszewski/personalized_reps/embeddings/",
         help="Path to the embeddings directory.",
     )
+    
+    parser.add_argument(
+        "--append_generated_data",
+        action="store_true",
+        help="Append generated data to existing data.",
+    )
 
     return parser.parse_args()

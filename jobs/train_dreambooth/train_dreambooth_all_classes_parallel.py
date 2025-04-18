@@ -71,7 +71,7 @@ if __name__ == '__main__':
     job_ids = []
 
     for class_name, class_category in metadata.items():
-        logger.info("Generating job file for class: ", class_name)
+        logger.info(f"Generating job file for class: {class_name}")
         
         with open(args.template, 'r') as f:
             job_file = f.read()

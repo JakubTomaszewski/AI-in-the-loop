@@ -85,7 +85,7 @@ if __name__ == "__main__":
     job_ids = []
 
     for class_name, class_category in metadata.items():
-        logger.info("Generating job file for class: ", class_name)
+        logger.info(f"Generating job file for class: {class_name}")
 
         with open(args.template, "r") as f:
             job_file = f.read()
@@ -113,17 +113,13 @@ if __name__ == "__main__":
         logger.info(f"Job ID: {job_id}")
 
         # Wait until the job is finished
-        sleep(60)
+        sleep(120)
         check_job_status([job_id])
 
     logger.info("All job files have been submitted. Waiting for all jobs to complete.")
     check_job_status(job_ids)
     logger.info("All SLURM jobs have completed.")
 
-    # Now iterate over all the result.json files and combine the avg_classification scores in a single file
-    # output format is class_name: avg_classification_score
-    # output_results_combined = os.path.join(args.output, "results_combined.json")
-    
     output_results_combined = {}
 
     for class_name in metadata.keys():

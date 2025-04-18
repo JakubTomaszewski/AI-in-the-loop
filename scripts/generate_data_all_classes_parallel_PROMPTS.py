@@ -54,6 +54,8 @@ def check_job_status(job_ids):
 
 if __name__ == "__main__":
     args = parse_args()
+    
+    logger.info(f"Running script with arguments: {args}")
 
     if args.wait_time is None:
         args.wait_time = args.num_samples * 2
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     job_ids = []
 
     for class_name, class_category in metadata.items():
-        logger.info("Generating job file for class: ", class_name)
+        logger.info(f"Generating job file for class: {class_name}")
 
         with open(args.template, "r") as f:
             job_file = f.read()
