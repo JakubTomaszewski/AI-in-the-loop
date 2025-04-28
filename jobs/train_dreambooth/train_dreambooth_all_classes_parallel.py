@@ -85,7 +85,6 @@ if __name__ == '__main__':
         
         # Run sbatch output_job_file_path
         logger.info(f"Submitting job file for class: {class_name}")
-        # os.system(f"sbatch {output_job_file_path}")
         
         result = subprocess.run(
             ["sbatch", output_job_file_path], capture_output=True, text=True

@@ -149,7 +149,7 @@ def run_dreambooth(args):
             prompts = prompt_dict[args.class_name][:args.n]
             batch_size = math.ceil(args.n / len(prompts))
     else:
-        vanilla_prompt = f"photo of a <new1> {args.class_category}"
+        vanilla_prompt = f"photo of a sks {args.class_category}"
         batch_size = args.batch_size
         num_prompts = int(args.n / batch_size)
         prompts = [vanilla_prompt for _ in range(num_prompts)]

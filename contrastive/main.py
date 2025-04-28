@@ -155,8 +155,6 @@ def main(args, device):
 
     args.dataset_csv = os.path.join(triplet_save_root, f"{args.pos_class_name}.csv")
     
-    # <MODIFIED>
-    # if not os.path.exists(args.dataset_csv) or not args.use_existing_triplets:
     print("Generating triplets")
     setup_triplets(
         args.class_id, 
@@ -170,9 +168,6 @@ def main(args, device):
         args.num_triplets,
         args.dataset_csv,
         args.ref_type)
-    # else:
-        # print("Found existing triplets")
-    # </MODIFIED>
     
     # Check for existing trained model checkpoint, otherwise train a new one
     print("Checking for existing checkpoint")

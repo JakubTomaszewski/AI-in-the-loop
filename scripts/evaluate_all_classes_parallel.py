@@ -51,6 +51,12 @@ def parse_args():
         help="Log file for the script",
         default="generate_data_all_classes_parallel_PROMPTS.log",
     )
+    
+    parser.add_argument(
+        "--negatives_path",
+        type=str,
+        help="Path to the negatives",
+    )
 
     return parser.parse_args()
 
@@ -61,6 +67,15 @@ def check_job_status(job_ids):
         if not any(job_id in running_jobs.stdout for job_id in job_ids):
             break
         sleep(30)  # Wait before checking again
+
+
+def submit_job(job_file):
+    result = subprocess.run(
+        ["sbatch", output_job_file_path], capture_output=True, text=True
+    )
+
+    job_id = result.stdout.strip().split()[-1]  # Extract job ID
+    return job_id
 
 
 if __name__ == "__main__":
@@ -97,6 +112,7 @@ if __name__ == "__main__":
             job_file = job_file.replace("${OUTPUT_PATH}", args.results_output)
             job_file = job_file.replace("${DATASET_METADATA}", args.metadata)
             job_file = job_file.replace("${SYNTHETIC_DATA_PATH}", args.synthetic_data_path)
+            job_file = job_file.replace("${NEGATIVES_PATH}", args.negatives_path)
             job_file = job_file.replace("${NUM_SYNTHETIC_SAMPLES}", str(args.num_synthetic_samples))
             job_file = job_file.replace("${NUM_TRIPLETS}", str(args.num_triplets))
             f.write(job_file)
@@ -104,17 +120,26 @@ if __name__ == "__main__":
         # Run sbatch output_job_file_path
         logger.info(f"Submitting job file for class: {class_name}")
 
-        result = subprocess.run(
-            ["sbatch", output_job_file_path], capture_output=True, text=True
-        )
-        job_id = result.stdout.strip().split()[-1]  # Extract job ID
-        job_ids.append(job_id)
-        
+        job_id = submit_job(output_job_file_path)
         logger.info(f"Job ID: {job_id}")
 
+        job_ids.append(job_id)
+
         # Wait until the job is finished
-        sleep(120)
+        sleep(200)
         check_job_status([job_id])
+        
+        # If the slurm output does not exist or contains an error or has been cancelled, retry
+        slurm_output_file = f"slurm_output_{job_id}.out"
+        if not os.path.exists(slurm_output_file) or "State: ERROR" in open(slurm_output_file).read() or "State: CANCELLED" in open(slurm_output_file).read():
+            logger.info(f"Job {job_id} failed or was cancelled. Retrying...")
+            job_id = submit_job(output_job_file_path)
+            logger.info(f"Retrying job ID: {job_id}")
+            job_ids.append(job_id)
+            
+            # Wait until the job is finished
+            sleep(200)
+            check_job_status([job_id])
 
     logger.info("All job files have been submitted. Waiting for all jobs to complete.")
     check_job_status(job_ids)

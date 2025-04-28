@@ -27,7 +27,7 @@ Ensure that each prompt follows the format below:
 
 <example>
 Input: class_category="bottle", num_prompts=3
-Output: ["A <new1> bottle on a picnic table", "A <new1> bottle on a picnic table", "A <new1> bottle on a picnic table"]
+Output: ["A sks bottle on a picnic table", "A sks bottle on a picnic table", "A sks bottle on a picnic table"]
 </example>
 
 <output_format>
@@ -123,4 +123,4 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 
-# Example: "A <new1> bottle on a picnic table",
+# Example: "A sks bottle on a picnic table",

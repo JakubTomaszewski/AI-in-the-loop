@@ -23,7 +23,7 @@ python contrastive/main.py \
  --dataset='pods' \
  --real_data_root='./data/pods' \
  --synthetic_train_root='${SYNTHETIC_DATA_PATH}' \
- --negatives_root='./synthetic_data/pods/pods_negatives' \
+ --negatives_root='${NEGATIVES_PATH}' \
  --output_path='${OUTPUT_PATH}' \
  --cache_dir='/scratch-shared/jtomaszewski/personalized_reps/cache' \
  --embed_path='/scratch-shared/jtomaszewski/personalized_reps/embeddings' \

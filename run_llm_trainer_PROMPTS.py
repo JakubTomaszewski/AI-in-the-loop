@@ -68,6 +68,8 @@ def evaluate_class_performance(
     dataset_metadata_path: str,
     template_file: str,
     synthetic_data_path: str,
+    negatives_path: str,
+    evaluation_output_path: str,
     num_synthetic_samples: int,
 ):
     evaluation_script = f"""python scripts/evaluate_all_classes_parallel.py \
@@ -76,8 +78,10 @@ def evaluate_class_performance(
         --output evaluate_scripts \
         --class_performance_output_path {class_performance_output_path} \
         --synthetic_data_path {synthetic_data_path} \
+        --negatives_path {negatives_path} \
         --num_synthetic_samples {num_synthetic_samples} \
         --num_triplets {num_synthetic_samples * 10} \
+        --results_output {evaluation_output_path} \
         --log_file {log_file}
     """
 
@@ -197,10 +201,10 @@ def parse_prompt(prompt_str):
     """
     Removes the 'Prompt NUMBER:' prefix from the prompt string.
     Example:
-    Input: "Prompt 1: A close-up image of a <new1> mug on a table, with a cup of coffee next to it, and a book in the background"
-    Output: "A close-up image of a <new1> mug on a table, with a cup of coffee next to it, and a book in the background"
+    Input: "Prompt 1: A close-up image of a sks mug on a table, with a cup of coffee next to it, and a book in the background"
+    Output: "A close-up image of a sks mug on a table, with a cup of coffee next to it, and a book in the background"
     """
-    return re.sub(r'^Prompt\s+\d+:\s+', '', prompt_str)
+    return re.sub(r"^Prompt\s+\d+:\s+", "", prompt_str)
 
 
 if __name__ == "__main__":
@@ -238,13 +242,14 @@ if __name__ == "__main__":
         class_strategies=defaultdict(
             lambda: """Generate extremely simple and short prompts randomly for each class.
             The prompts should say that the object is in some place or scenario that is relevant to the object.
-            For example:
-            "A <new1> mug on a stool",
-            "A <new1> mug on a table",
-            "A <new1> mug in a sink full of dishes",
-            "A <new1> mug on a picnic blanket",
             
-            Do not overcomplicate the prompts. Keep them simple and relevant to the object.
+            For example:
+            "A sks mug on a stool",
+            "A sks mug on a table",
+            "A sks mug in a sink full of dishes",
+            "A sks mug on a picnic blanket",
+            
+            Do not overcomplicate the prompts. Keep them super simple, concise, and relevant to the object.
             """
         )
     )
@@ -264,8 +269,7 @@ if __name__ == "__main__":
 
         # Save the generated prompts to a file
         generated_prompts_path = args.generated_prompts_path.format(
-            timestamp=current_time,
-            iteration_number=iteration_number
+            timestamp=current_time, iteration_number=iteration_number
         )
         os.makedirs(os.path.dirname(generated_prompts_path), exist_ok=True)
         with open(generated_prompts_path, "w") as f:
@@ -275,30 +279,29 @@ if __name__ == "__main__":
 
         ##### 2. Generate data using the generated prompts #####
         generate_data_output_path = os.path.join(
-            args.generate_data_output_path, current_time, f"iteration_{iteration_number}"
+            args.generate_data_output_path,
+            current_time,
+            f"iteration_{iteration_number}",
         )
 
         # Copy the existing generations from the previous iteration
         if args.append_generated_data and iteration_number > 0:
             previous_iteration_path = os.path.join(
-                args.generate_data_output_path, current_time, f"iteration_{iteration_number - 1}"
+                args.generate_data_output_path,
+                current_time,
+                f"iteration_{iteration_number - 1}",
             )
             shutil.copytree(previous_iteration_path, generate_data_output_path)
-            
-        
-        # os.makedirs(generate_data_output_path, exist_ok=True)
 
         logger.info(f"Path for generated data: {generate_data_output_path}")
 
-        shutil.rmtree(
-            "/scratch-shared/jtomaszewski/personalized_reps/evaluation_output/",
-            ignore_errors=True,
-        )
-        
-        if os.path.exists("/scratch-shared/jtomaszewski/personalized_reps/evaluation_output"):
-            subprocess.run(
-                "rm /scratch-shared/jtomaszewski/personalized_reps/evaluation_output"
-            )
+        if os.path.exists(args.evaluation_output_path) and os.path.isdir(
+            args.evaluation_output_path
+        ):
+            shutil.rmtree(args.evaluation_output_path)
+
+        if os.path.exists(args.evaluation_output_path):
+            subprocess.run(f"rm {args.evaluation_output_path}")
 
         logger.info("Generating data using the generated prompts")
 
@@ -312,21 +315,31 @@ if __name__ == "__main__":
         logger.info(f"Generated data using the provided prompts.")
 
         class_performance_output_path = args.class_performance_output_path.format(
-            timestamp=current_time,
-            iteration_number=iteration_number
+            timestamp=current_time, iteration_number=iteration_number
         )
 
         ##### 3. Train & Evaluate the model performance #####
         # Remove cache and embeddings
-        shutil.rmtree(args.cache_dir, ignore_errors=True)
-        shutil.rmtree(args.embeddings_dir, ignore_errors=True)
+        if os.path.exists(args.cache_dir):
+            shutil.rmtree(args.cache_dir)
+
+        if os.path.exists(args.embeddings_dir):
+            shutil.rmtree(args.embeddings_dir)
+
+        num_synthetic_samples = (
+                args.num_synthetic_samples * (iteration_number + 1)
+                if args.append_generated_data
+                else args.num_synthetic_samples
+            )
 
         class_performance = evaluate_class_performance(
             class_performance_output_path,
             args.dataset_metadata_path,
             args.evaluation_template_file,
             generate_data_output_path,
-            args.num_synthetic_samples * (iteration_number + 1) if args.append_generated_data else args.num_synthetic_samples,
+            args.negatives_path,
+            args.evaluation_output_path,
+            num_synthetic_samples,
         )
 
         logger.info(
@@ -344,8 +357,7 @@ if __name__ == "__main__":
 
         # Save the prompt summaries to a file
         prompt_summaries_path = args.prompt_summaries_path.format(
-            timestamp=current_time,
-            iteration_number=iteration_number
+            timestamp=current_time, iteration_number=iteration_number
         )
         os.makedirs(os.path.dirname(prompt_summaries_path), exist_ok=True)
         with open(prompt_summaries_path, "w") as f:
@@ -372,8 +384,7 @@ if __name__ == "__main__":
 
         # Save the prompt generation strategy to a file
         prompt_generation_strategy_path = args.prompt_generation_strategy_path.format(
-            timestamp=current_time,
-            iteration_number=iteration_number
+            timestamp=current_time, iteration_number=iteration_number
         )
         os.makedirs(os.path.dirname(prompt_generation_strategy_path), exist_ok=True)
         with open(prompt_generation_strategy_path, "w") as f:

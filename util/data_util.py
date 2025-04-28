@@ -48,13 +48,7 @@ def makedirs(path, permissions=None):
     Returns:
         None
     """
-    if permissions is not None:
-        if not os.path.exists(path):
-            os.makedirs(path, exist_ok=True)
-            if can_change_permissions(path):
-                os.chmod(path, permissions)
-    else:
-        os.makedirs(path, exist_ok=True)
+    os.makedirs(path, exist_ok=True)
 
 def load_pathfile(pathfile):
     """

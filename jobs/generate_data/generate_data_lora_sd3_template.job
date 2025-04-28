@@ -17,7 +17,7 @@ cd $HOME/personalized-rep
 
 python generation/generate_data_lora_sd3.py \
     --base_model='stabilityai/stable-diffusion-3-medium-diffusers' \
-    --model_path='/scratch-shared/jtomaszewski/personalized_reps/finetuned_models/dreambooth_stabilityai_stable-diffusion-3-medium-diffusers_0.0001_800_lora' \
+    --model_path='/scratch-shared/jtomaszewski/personalized_reps/finetuned_models/dreambooth_stabilityai_stable-diffusion-3-medium-diffusers_0.0001_1200' \
     --class_name='${CLASS_NAME}' \
     --class_category='${CLASS_CATEGORY}' \
     --output_path='${OUTPUT_PATH}' \

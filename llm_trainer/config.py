@@ -51,7 +51,7 @@ def parse_args():
         "--generate_data_output_path",
         type=str,
         help="Output path for generated data",
-        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_lora",
+        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_lora/",
     )
 
     parser.add_argument(
@@ -59,6 +59,13 @@ def parse_args():
         type=str,
         help="Output path for generated prompts",
         default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/{timestamp}/iteration_{iteration_number}/prompts.json",
+    )
+    
+    parser.add_argument(
+        "--evaluation_output_path",
+        type=str,
+        help="Output path for evaluation results",
+        default="/scratch-shared/jtomaszewski/personalized_reps/evaluation_output/",
     )
 
     parser.add_argument(
@@ -95,7 +102,15 @@ def parse_args():
         default="/scratch-shared/jtomaszewski/personalized_reps/embeddings/",
         help="Path to the embeddings directory.",
     )
-    
+
+    parser.add_argument(
+        "--negatives_path",
+        type=str,
+        default="/scratch-shared/jtomaszewski/personalized_reps/pods_negatives/",
+        # default="./synthetic_data/pods/pods_negatives",,
+        help="Path to the negatives root directory.",
+    )
+
     parser.add_argument(
         "--append_generated_data",
         action="store_true",

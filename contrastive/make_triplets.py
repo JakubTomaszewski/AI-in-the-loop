@@ -93,10 +93,10 @@ def setup_triplets(
     print(f"Using {num_synthetic} synthetic positives to make {num_triplets} triplets.")
     print("Saving to ", save_path)
 
-    if dataset_name == "pods":
-        obj = cls_name.split("_")[0]
-        negatives_root = os.path.join(negatives_root, f"{obj}_negatives")
-        print(f"Getting negatives from {negatives_root}")
+    # if dataset_name == "pods":
+    obj = cls_name.split("_")[0]
+    negatives_root = os.path.join(negatives_root, f"{obj}_negatives")
+    print(f"Getting negatives from {negatives_root}")
 
     # Get positive and negative paths
     negative_train_paths = get_paths(negatives_root)
