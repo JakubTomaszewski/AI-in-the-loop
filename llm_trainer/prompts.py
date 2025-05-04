@@ -82,15 +82,16 @@ Examples:
 ## Example 1
 Strategy: "Generate prompts that have different, forest-like backgrounds. For example, 'A ... sks {{object_category}}' + details about the forest-like background."
 Your output: [
-    "Prompt 1: A a sks cup in a forest, from the top view",
+    "Prompt 1: A a sks cup in a forest, surrounded by trees and multiple animals",
     "Prompt 2: A bright image of a sks cup in at a lake, surrounded by trees and grass",
 ]
 
 ## Example 2
-Strategy: "Generate prompts that are more detailed and specific to the class. For example, 'A high resolution image of a sks {{object_category}}' + details about the object or scene. Add different object orientations to the prompts. For example, 'A bright image of a sks {{object_category}}' + details about the object orientation or perspective." 
+Strategy: "Generate prompts depicting the object in a school environment. For example, 'A high resolution image of a sks {{object_category}}' + details about the school environment."
 Your output: [
-    "Prompt 1: A sks backpack in a school from the side, with a shadow on the ground"
-    "Prompt 2: A high resolution image of a sks backpack on a desk, from the top view, with a bright light shining on it"
+    "Prompt 1: A sks backpack in a school.",
+    "Prompt 2: A high resolution image of a sks backpack on a desk in a classroom.",
+    "Prompt 3: A sks backpack in a school, surrounded by students and teachers.",
 ]
 </example>
 
@@ -101,8 +102,8 @@ Each prompt should be a separate string.
 
 Example:
 [
-    "Prompt 1: A high resolution image of a sks cup in a forest, from the top view",
-    "Prompt 2: A sks cup in a forest, from the top view, surrounded by trees and multiple animals",
+    "Prompt 1: A image of a sks cup in a forest.",
+    "Prompt 2: A sks cup in a forest, surrounded by trees and multiple animals.",
     ...
 ]
 
@@ -138,14 +139,14 @@ Rules:
 <example>
 Input:
 [
-    'A high resolution image of a sks {{object_category}} laying in a garden, surrounded by flowers. Top view.', 
-    'A bright image of a sks {{object_category}} in a forest, from the top view, surrounded by trees and multiple animals', 
-    'A sks {{object_category}}' with a dark background, from the upper view', 
-    'A picture containing a sks {{object_category}} on a grassy field'
+    'A high resolution image of a sks {{object_category}} laying in a garden, surrounded by flowers.', 
+    'A bright image of a sks {{object_category}} in a forest, surrounded by trees and multiple animals.', 
+    'A sks {{object_category}}' with a dark background.', 
+    'A picture containing a sks {{object_category}} on a grassy field.'
 ]
 
 Output:
-'The prompts contain backgrounds mainly connected with nature, including trees, forests, gardens, and grassy fields. The objects are often described as being in a top view, with some prompts mentioning multiple animals. Yet, most objects are associated with nature and plants. The prompts mainly include bright images.'
+'The prompts contain backgrounds mainly connected with nature, including trees, forests, gardens, and grassy fields. The objects are often depicted in settings with multiple animals. Yet, most objects are associated with nature and plants.'
 </example>
 
 <output_format>
