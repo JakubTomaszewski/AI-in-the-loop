@@ -1,9 +1,4 @@
-STRATEGY_GENRATION_PROMPT = """You are provided with a summary of prompts used for generating synthetic images along with the performance of the image classification model trained using those synthetic images for a set of different classes.
-The model is trained using contrastive learning, so the quality of the synthetic images is crucial for the model's performance.
-
-<class_information>
-{class_information}
-</class_information>
+STRATEGY_GENRATION_PROMPT = """You are provided with a summary of prompts used for generating synthetic images along with the performance of the image classification model trained using those synthetic images for a set of different classes. This is denoted as the <class_information> section. The performance is a number between 0 and 1, where 1 is the best performance. The summary of the prompts is a concise description of the prompts used for generating synthetic images.
 
 <instructions>
 Analyze the prompts and the performance of the model and come up with a strategy for generating new prompts for each class that will potentially improve the model's performance.
@@ -13,8 +8,12 @@ Rules:
 1. You MUST analyze the performance of the model and the summary of the prompts to generate a strategy for each class.
 2. You MUST generate a strategy for each class based on the performance of the model and the summary of the prompts.
 3. Be creative and think about how the prompts can be improved to generate more relevant synthetic images for each class. 
-4. The strategies have to be relatively short and concise but detailed and specific to each class.
+4. The strategies MUST be short and concise but detailed and specific to each class.
 5. DO NOT include information about the current prompts or the performance of the model in the strategy. Only generate a strategy for generating new prompts.
+6. You MUST ONLY modify the background or setting around the object DO NOT change the object itself. I.e. don't change the color, material or anything else related to the object.
+7. Be specific about the background or setting around the object. DO NOT generate general or vague strategies like "Emphasize reflections on glossy surfaces and incorporate subtle decorative elements to highlight design details."
+8. The strategies MUST only guide the generation towards specific backgrounds and not towards specific features of the object itself. For instance, strategies mentioning "detailed", "glossy", "decorative", etc. elements of the object are not allowed.
+
 
 Do not mention the sks token in the strategy. It will be added automatically when generating prompts.
 </instructions>
@@ -39,14 +38,17 @@ Input:
 Output:
 {{
     "class1": "Generate prompts depicting the object in an urban and sunny environment. For example, 'A high resolution image of a sks {{object_category}}' + details about the urban environment.",
-    "class2": "Add different viewing angles and perspectives to the prompts. For example, 'A high resolution image of a sks {{object_category}}' + details about the object orientation or perspective.",
-    "class3": "Generate prompts that have different, forest-like backgrounds. For example, 'A sks {{object_category}}' + details about the forest-like background."
+    "class2": "Generate prompts that have different, forest-like backgrounds. For example, 'A sks {{object_category}}' + details about the forest-like background.",
 }}
 </example>
 
 <output_format>
 {output_format}
 </output_format>
+
+<class_information>
+{class_information}
+</class_information>
 """
 
 
@@ -69,7 +71,8 @@ Rules to follow:
 4. Each prompt can have a maximum of 15 words.
 5. The prompts MUST be short and concise.
 6. Each prompt MUST be relevant to the base class. For instance, if the class is "mug with dots", the prompts should be related to the base class being a "mug", not the "dots".
-7. ONLY modify the background, scene, or setting around the object. DO NOT change the object itself. I.e. don't change the color, material or anything else related to the object.
+7. ONLY modify the background or setting around the object. DO NOT change the object itself. I.e. don't change the color, material or anything else related to the object.
+8. The prompts MUST only guide the generation towards specific backgrounds and not towards specific features of the object itself. For instance, prompts mentioning "detailed", "glossy", "decorative", etc. elements of the object are not allowed.
 
 </instructions>
 
