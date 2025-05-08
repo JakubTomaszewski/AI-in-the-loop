@@ -210,7 +210,12 @@ def main(args, device):
                 args.downstream_task = task 
                 print(f"Running {args.downstream_task} at epoch {args.eval_epoch}")
 
-                run_downstream(args, device, class_info, args.output_path)
+                try:
+                    run_downstream(args, device, class_info, args.output_path)
+                except Exception as e:
+                    print(f"Error running downstream task {args.downstream_task}: {e}")
+                    print("Retrying.")
+                    run_downstream(args, device, class_info, args.output_path)
         else:
             print("Skipping evaluation")
             

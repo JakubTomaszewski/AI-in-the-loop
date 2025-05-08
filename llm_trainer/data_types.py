@@ -40,3 +40,17 @@ class PromptSummaries(BaseModel):
 
 class Prompts(BaseModel):
     prompts: list[str] = Field(..., description="List of prompts")
+
+
+class ClassPerformanceAndSamplesInformation(BaseModel):
+    iteration: int = Field(..., description="The iteration number")
+    class_accuracy: dict[str, float] = Field(..., description="The accuracy for each class")
+    num_synthetic_samples_per_class: dict[str, int] = Field(
+        ..., description="The number of synthetic samples for each class"
+    )
+
+
+class NumSyntheticSamples(BaseModel):
+    num_synthetic_samples: dict[str, int] = Field(
+        ..., description="The number of synthetic samples for each class"
+    )

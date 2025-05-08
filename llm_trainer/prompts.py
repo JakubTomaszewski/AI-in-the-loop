@@ -1,3 +1,32 @@
+NUM_SAMPLES_GENERATION_PROMPT = """You are provided with a history of the model's accuracy for a set of different classes along with the number of synthetic samples generated for each class. Those synthetic samples are used for training an image classification model using contrastive learning.
+The model's accuracy is a number between 0 and 1, where 1 is the best accuracy. The history of the model's accuracy is a list of numbers, where each number represents the accuracy of the model for a specific class. This is denoted as the <class_information> section and presents a history of the model's accuracy for each class in different iterations and number of synthetic samples generated for each class.
+
+<instructions>
+Using the accuracy history and the number of synthetic samples generated for each class, decide how many synthetic samples to generate for each class in order to improve the model's performance.
+The model is retrained using the generated synthetic samples and the performance is evaluated again. The results are then stored in the <class_information> section as the accuracy history.
+
+Rules:
+1. The main goal is to improve the model's performance by generating more synthetic samples for classes that have lower accuracy.
+2. You MUST thoroughly analyze the accuracy history and the number of synthetic samples generated for each class to decide how many synthetic samples to generate for each class.
+3. You MUST generate a number of synthetic samples for each class based on the accuracy history and the number of synthetic samples generated for each class.
+4. In general, if the model's performance is low for a class, you should generate more synthetic samples for that class. However, if the performance for a particular class decreases after generating more synthetic samples, you can revert the changes by generating fewer synthetic samples for that class.
+5. DO NOT generate too many synthetic samples for classes that already have high accuracy. Instead, focus on generating more synthetic samples for classes with lower accuracy.
+6. DO NOT generate less than 10 synthetic samples for any class.
+7. DO NOT generate more than 200 synthetic samples for any class.
+8. YOU MUST output only the number of synthetic samples to generate for each class in the format specified below. DO NOT write any code. 
+</instructions>
+
+<output_format>
+{format_instructions}
+</output_format>
+
+<class_information>
+{class_information}
+</class_information>
+"""
+
+
+
 STRATEGY_GENRATION_PROMPT = """You are provided with a summary of prompts used for generating synthetic images along with the performance of the image classification model trained using those synthetic images for a set of different classes. This is denoted as the <class_information> section. The performance is a number between 0 and 1, where 1 is the best performance. The summary of the prompts is a concise description of the prompts used for generating synthetic images.
 
 <instructions>
@@ -82,15 +111,16 @@ Examples:
 ## Example 1
 Strategy: "Generate prompts that have different, forest-like backgrounds. For example, 'A ... sks {{object_category}}' + details about the forest-like background."
 Your output: [
-    "Prompt 1: A a sks cup in a forest, from the top view",
+    "Prompt 1: A a sks cup in a forest, surrounded by trees and multiple animals",
     "Prompt 2: A bright image of a sks cup in at a lake, surrounded by trees and grass",
 ]
 
 ## Example 2
-Strategy: "Generate prompts that are more detailed and specific to the class. For example, 'A high resolution image of a sks {{object_category}}' + details about the object or scene. Add different object orientations to the prompts. For example, 'A bright image of a sks {{object_category}}' + details about the object orientation or perspective." 
+Strategy: "Generate prompts depicting the object in a school environment. For example, 'A high resolution image of a sks {{object_category}}' + details about the school environment."
 Your output: [
-    "Prompt 1: A sks backpack in a school from the side, with a shadow on the ground"
-    "Prompt 2: A high resolution image of a sks backpack on a desk, from the top view, with a bright light shining on it"
+    "Prompt 1: A sks backpack in a school.",
+    "Prompt 2: A high resolution image of a sks backpack on a desk in a classroom.",
+    "Prompt 3: A sks backpack in a school, surrounded by students and teachers.",
 ]
 </example>
 
@@ -101,8 +131,8 @@ Each prompt should be a separate string.
 
 Example:
 [
-    "Prompt 1: A high resolution image of a sks cup in a forest, from the top view",
-    "Prompt 2: A sks cup in a forest, from the top view, surrounded by trees and multiple animals",
+    "Prompt 1: A image of a sks cup in a forest.",
+    "Prompt 2: A sks cup in a forest, surrounded by trees and multiple animals.",
     ...
 ]
 
@@ -138,14 +168,14 @@ Rules:
 <example>
 Input:
 [
-    'A high resolution image of a sks {{object_category}} laying in a garden, surrounded by flowers. Top view.', 
-    'A bright image of a sks {{object_category}} in a forest, from the top view, surrounded by trees and multiple animals', 
-    'A sks {{object_category}}' with a dark background, from the upper view', 
-    'A picture containing a sks {{object_category}} on a grassy field'
+    'A high resolution image of a sks {{object_category}} laying in a garden, surrounded by flowers.', 
+    'A bright image of a sks {{object_category}} in a forest, surrounded by trees and multiple animals.', 
+    'A sks {{object_category}}' with a dark background.', 
+    'A picture containing a sks {{object_category}} on a grassy field.'
 ]
 
 Output:
-'The prompts contain backgrounds mainly connected with nature, including trees, forests, gardens, and grassy fields. The objects are often described as being in a top view, with some prompts mentioning multiple animals. Yet, most objects are associated with nature and plants. The prompts mainly include bright images.'
+'The prompts contain backgrounds mainly connected with nature, including trees, forests, gardens, and grassy fields. The objects are often depicted in settings with multiple animals. Yet, most objects are associated with nature and plants.'
 </example>
 
 <output_format>

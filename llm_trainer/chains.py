@@ -6,10 +6,17 @@ from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableLambda
 
-from llm_trainer.data_types import ClassInformation, PromptStrategy, Prompts
+from llm_trainer.data_types import (
+    ClassInformation,
+    PromptStrategy,
+    Prompts,
+    ClassPerformanceAndSamplesInformation,
+    NumSyntheticSamples,
+)
 
 
 class ChainType(Enum):
+    NUM_SYNTHETIC_SAMPLES = "num_synthetic_samples"
     STRATEGY_GENERATION = "strategy_generation"
     PROMPT_GENERATION = "prompt_generation"
     PROMPT_SUMMARIZATION = "prompt_summarization"
@@ -18,6 +25,27 @@ class ChainType(Enum):
 class ChainFactory:
     def __init__(self, llm):
         self.llm = llm
+
+    def create_num_synthetic_samples_chain(self):
+        num_synthetic_samples_output_parser = PydanticOutputParser(
+            pydantic_object=NumSyntheticSamples
+        )
+
+        num_synthetic_samples_prompt = PromptTemplate(
+            template=prompts.NUM_SAMPLES_GENERATION_PROMPT,
+            input_variables=["class_information"],
+            partial_variables={
+                "output_format": num_synthetic_samples_output_parser.get_format_instructions(),
+            },
+        )
+
+        chain: Runnable[List[ClassPerformanceAndSamplesInformation], NumSyntheticSamples] = {
+            {"class_information": RunnablePassthrough()}
+            | num_synthetic_samples_prompt
+            | self.llm
+            | num_synthetic_samples_output_parser
+        }
+        return chain
 
     def create_strategy_generation_chain(self):
         strategy_generation_output_parser = PydanticOutputParser(
@@ -72,9 +100,7 @@ class ChainFactory:
             input_variables=["prompts"],  # List of prompts
         )
         chain: Runnable[List[str], str] = (
-            {
-                "prompts": RunnablePassthrough()
-            }  # TODO: Debug this as the prompts are not passed correctly
+            {"prompts": RunnablePassthrough()}
             | RunnableLambda(format_prompts)
             | prompt_summarization_prompt
             | self.llm
@@ -83,7 +109,9 @@ class ChainFactory:
         return chain
 
     def create_chain(self, chain_type: ChainType):
-        if chain_type == ChainType.STRATEGY_GENERATION:
+        if chain_type == ChainType.NUM_SYNTHETIC_SAMPLES:
+            return self.create_num_synthetic_samples_chain()
+        elif chain_type == ChainType.STRATEGY_GENERATION:
             return self.create_strategy_generation_chain()
         elif chain_type == ChainType.PROMPT_GENERATION:
             return self.create_prompt_generation_chain()
