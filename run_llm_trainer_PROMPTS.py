@@ -4,6 +4,7 @@ A LLM-based training which controls an end-to-end training pipeline. Three stage
 * given all the summaries and the performances, ask the LLM to generate a high level strategy how new images should be generated for each class in one call
 * per-class: turn this high-level strategy into hundreds of prompts
 """
+
 import re
 import sys
 import os
@@ -298,10 +299,18 @@ if __name__ == "__main__":
         if os.path.exists(args.evaluation_output_path) and os.path.isdir(
             args.evaluation_output_path
         ):
+            logger.info(
+                f"Removing the existing evaluation output path and creating a new one: {args.evaluation_output_path}"
+            )
             shutil.rmtree(args.evaluation_output_path)
 
         if os.path.exists(args.evaluation_output_path):
-            subprocess.run(f"rm {args.evaluation_output_path}")
+            logger.info(
+                f"Removing the existing evaluation output file: {args.evaluation_output_path} and creating a new one"
+            )
+            os.remove(args.evaluation_output_path)
+
+        os.makedirs(args.evaluation_output_path, exist_ok=True)
 
         logger.info("Generating data using the generated prompts")
 
@@ -320,17 +329,37 @@ if __name__ == "__main__":
 
         ##### 3. Train & Evaluate the model performance #####
         # Remove cache and embeddings
-        if os.path.exists(args.cache_dir):
+        if os.path.exists(args.cache_dir) and os.path.isdir(args.cache_dir):
+            logger.info(
+                f"Removing the existing cache directory and creating a new one: {args.cache_dir}"
+            )
             shutil.rmtree(args.cache_dir)
 
+        if os.path.exists(args.cache_dir):
+            logger.info(
+                f"Removing the existing cache file: {args.cache_dir} and creating a new one"
+            )
+            os.remove(args.cache_dir)
+        os.makedirs(args.cache_dir, exist_ok=True)
+
         if os.path.exists(args.embeddings_dir):
+            logger.info(
+                f"Removing the existing embeddings directory and creating a new one: {args.embeddings_dir}"
+            )
             shutil.rmtree(args.embeddings_dir)
+        if os.path.exists(args.embeddings_dir):
+            logger.info(
+                f"Removing the existing embeddings file: {args.embeddings_dir} and creating a new one"
+            )
+            os.remove(args.embeddings_dir)
+
+        os.makedirs(args.embeddings_dir, exist_ok=True)
 
         num_synthetic_samples = (
-                args.num_synthetic_samples * (iteration_number + 1)
-                if args.append_generated_data
-                else args.num_synthetic_samples
-            )
+            args.num_synthetic_samples * (iteration_number + 1)
+            if args.append_generated_data
+            else args.num_synthetic_samples
+        )
 
         class_performance = evaluate_class_performance(
             class_performance_output_path,
