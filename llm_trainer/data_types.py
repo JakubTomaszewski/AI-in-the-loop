@@ -24,6 +24,7 @@ class ClassDetails(BaseModel):
 
 
 class ClassInformation(BaseModel):
+    iteration: int = Field(..., description="Iteration number")
     class_details: dict[str, ClassDetails] = Field(
         ..., description="Details of all classes"
     )

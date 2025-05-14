@@ -1,8 +1,10 @@
-STRATEGY_GENRATION_PROMPT = """You are provided with a summary of prompts used for generating synthetic images along with the performance of the image classification model trained using those synthetic images for a set of different classes. This is denoted as the <class_information> section. The performance is a number between 0 and 1, where 1 is the best performance. The summary of the prompts is a concise description of the prompts used for generating synthetic images.
+STRATEGY_GENRATION_PROMPT = """You are provided with a history of summaries of prompts used for generating synthetic images along with the performance of the image classification model trained using those synthetic images for a set of different classes. This is denoted as the <class_information_history> section. The performance is a number between 0 and 1, where 1 is the best performance. The summary of the prompts is a concise description of the prompts used for generating synthetic images.
+The history is created by iteratively training the image classification model using the synthetic images generated from the prompts. The performance of the model is evaluated after each iteration, and the summary of the prompts is updated accordingly.
 
 <instructions>
 Analyze the prompts and the performance of the model and come up with a strategy for generating new prompts for each class that will potentially improve the model's performance.
 Those strategies should be a set of guidelines for generating prompts that will be used for generating synthetic images. Those synthetic images are then used for training an image classification model.
+Focus mainly on the latest iteration of the model's performance and the summary of the prompts (one with the largest iteration number), but also consider the previous iterations.
 
 Rules:
 1. You MUST analyze the performance of the model and the summary of the prompts to generate a strategy for each class.
@@ -20,20 +22,43 @@ Do not mention the sks token in the strategy. It will be added automatically whe
 
 <example>
 Input:
-"class_details": {{
-    "class1": {{
-    "performance": 0.5,
-    "prompt_summary": "A summary of the prompts for class1"
+[
+    {{
+        "iteration": 1,
+        "class_details": {{
+            "class1": {{
+                "performance": 0.5,
+                "prompt_summary": "A summary of the prompts for class1"
+            }},
+            "class2": {{
+                "performance": 0.8,
+                "prompt_summary": "A summary of the prompts for class2"
+            }},
+            "class3": {{
+                "performance": 0.3,
+                "prompt_summary": "A summary of the prompts for class3"
+            }}
+        }}
     }},
-    "class2": {{
-    "performance": 0.8,
-    "prompt_summary": "A summary of the prompts for class2"
+    {{
+        "iteration": 2,
+        "class_details": {{
+            "class1": {{
+                "performance": 0.6,
+                "prompt_summary": "A summary of the prompts for class1"
+            }},
+            "class2": {{
+                "performance": 0.7,
+                "prompt_summary": "A summary of the prompts for class2"
+            }},
+            "class3": {{
+                "performance": 0.4,
+                "prompt_summary": "A summary of the prompts for class3"
+            }}
+        }}
     }},
-    "class3": {{
-    "performance": 0.3,
-    "prompt_summary": "A summary of the prompts for class3"
-    }}
-}}
+    ...
+]
 
 Output:
 {{
@@ -46,9 +71,9 @@ Output:
 {output_format}
 </output_format>
 
-<class_information>
-{class_information}
-</class_information>
+<class_information_history>
+{class_information_history}
+</class_information_history>
 """
 
 

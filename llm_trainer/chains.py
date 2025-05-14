@@ -1,12 +1,13 @@
+import json
 from enum import Enum
-from llm_trainer import prompts
-
 from typing import List
+
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import Runnable, RunnableLambda, RunnablePassthrough
 
-from llm_trainer.data_types import ClassInformation, PromptStrategy, Prompts
+from llm_trainer import prompts
+from llm_trainer.data_types import ClassInformation, Prompts, PromptStrategy
 
 
 class ChainType(Enum):
@@ -25,13 +26,13 @@ class ChainFactory:
         )
         strategy_generation_prompt = PromptTemplate(
             template=prompts.STRATEGY_GENRATION_PROMPT,
-            input_variables=["class_information"],
+            input_variables=["class_information_history"],
             partial_variables={
                 "output_format": strategy_generation_output_parser.get_format_instructions()
             },
         )
-        chain: Runnable[ClassInformation, PromptStrategy] = (
-            {"class_information": RunnablePassthrough()}
+        chain: Runnable[List[ClassInformation], PromptStrategy] = (
+            {"class_information_history": RunnablePassthrough() | format_history}
             | strategy_generation_prompt
             | self.llm
             | strategy_generation_output_parser
@@ -91,3 +92,11 @@ class ChainFactory:
             return self.create_prompt_summarization_chain()
         else:
             raise ValueError(f"Unknown chain type: {chain_type}")
+
+
+def format_history(history: dict) -> str:
+    """Format the class information history as a properly indented JSON string."""
+    history_dicts = [
+        entry.model_dump() for entry in history["class_information_history"]
+    ]
+    return json.dumps(history_dicts, indent=2)
