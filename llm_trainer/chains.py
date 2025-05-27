@@ -3,7 +3,7 @@ from llm_trainer import prompts
 
 from typing import List
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableLambda
 
 from llm_trainer.data_types import ClassInformation, PromptStrategy, Prompts
@@ -23,8 +23,11 @@ class ChainFactory:
         strategy_generation_output_parser = PydanticOutputParser(
             pydantic_object=PromptStrategy
         )
-        strategy_generation_prompt = PromptTemplate(
-            template=prompts.STRATEGY_GENRATION_PROMPT,
+        strategy_generation_prompt = ChatPromptTemplate(
+            messages=[
+                ("system", prompts.STRATEGY_GENRATION_PROMPT),
+                ("human", prompts.STRATEGY_GENRATION_USER_PROMPT),
+            ],
             input_variables=["class_information"],
             partial_variables={
                 "output_format": strategy_generation_output_parser.get_format_instructions()
@@ -40,8 +43,11 @@ class ChainFactory:
 
     def create_prompt_generation_chain(self):
         prompt_generation_output_parser = PydanticOutputParser(pydantic_object=Prompts)
-        prompt_generation_prompt = PromptTemplate(
-            template=prompts.PROMPT_GENERATION_PROMPT,
+        prompt_generation_prompt = ChatPromptTemplate(
+            messages=[
+                ("system", prompts.PROMPT_GENERATION_PROMPT),
+                ("human", prompts.PROMPT_GENERATION_USER_PROMPT),
+            ],
             input_variables=["prompt_strategy", "num_prompts", "object_category"],
             partial_variables={
                 "output_format": prompt_generation_output_parser.get_format_instructions()
@@ -67,14 +73,16 @@ class ChainFactory:
             return "[\n" + formatted_prompts + "\n]"
 
         prompt_summarization_output_parser = StrOutputParser()
-        prompt_summarization_prompt = PromptTemplate(
-            template=prompts.PROMPT_SUMMARIZATION_PROMPT,
+        prompt_summarization_prompt = ChatPromptTemplate(
+            messages=[
+                ("system", prompts.PROMPT_SUMMARIZATION_PROMPT),
+                ("human", prompts.PROMPT_SUMMARIZATION_USER_PROMPT),
+            ],
             input_variables=["prompts"],  # List of prompts
         )
         chain: Runnable[List[str], str] = (
             {
                 "prompts": RunnablePassthrough()
-            }  # TODO: Debug this as the prompts are not passed correctly
             | RunnableLambda(format_prompts)
             | prompt_summarization_prompt
             | self.llm

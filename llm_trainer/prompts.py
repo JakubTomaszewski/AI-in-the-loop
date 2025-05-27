@@ -45,9 +45,9 @@ Format the output according to the following format:
     "class2": "Generate prompts that have different, forest-like backgrounds. For example, 'A sks {{object_category}}' + details about the forest-like background.",
 }}
 </output>
+"""
 
-
-
+STRATEGY_GENRATION_USER_PROMPT = """
 <class_information>
 {class_information}
 </class_information>
@@ -58,7 +58,7 @@ PROMPT_GENERATION_PROMPT = """You are provided with a strategy for generating pr
 
 # Instructions
 Based on the provided strategy, generate new prompts for each class that will be used for generating synthetic images.
-Each of the prompts **must** include the sks token and the object category name which is: {object_category}. The rest of the prompt should be based on the strategy provided.
+Each of the prompts **must** include the sks token and the object category name which is: "{object_category}". The rest of the prompt should be based on the strategy provided.
 The starting part of the prompt should be: "A sks {{object_category}}" + details about the object or scene.
 
 ## Rules:
@@ -104,8 +104,9 @@ Each prompt should be a separate string.
     "Prompt 3: A sks backpack in a school, surrounded by students and teachers.",
 ]
 </output>
+"""
 
-
+PROMPT_GENERATION_USER_PROMPT = """
 <prompt_strategy>
 {prompt_strategy}
 </prompt_strategy>
@@ -146,9 +147,10 @@ Only write the summary of the prompts. Do not write any code.
 <output>
 'The prompts contain backgrounds mainly connected with nature, including trees, forests, gardens, and grassy fields. The objects are often depicted in settings with multiple animals. Yet, most objects are associated with nature and plants.'
 </output>
+"""
 
 
-
+PROMPT_SUMMARIZATION_USER_PROMPT = """
 <prompts>
 {prompts}
 </prompts>
