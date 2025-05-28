@@ -34,7 +34,7 @@ class ChainFactory:
             },
         )
         chain: Runnable[ClassInformation, PromptStrategy] = (
-            {"class_information": RunnablePassthrough()}
+            {"class_information": RunnableLambda(lambda x: x["class_information"])}
             | strategy_generation_prompt
             | self.llm
             | strategy_generation_output_parser
@@ -55,9 +55,9 @@ class ChainFactory:
         )
         chain: Runnable[PromptStrategy, List[str]] = (
             {
-                "prompt_strategy": RunnablePassthrough(),
-                "num_prompts": RunnablePassthrough(),
-                "object_category": RunnablePassthrough(),
+                "prompt_strategy": RunnableLambda(lambda x: x["prompt_strategy"]),
+                "num_prompts": RunnableLambda(lambda x: x["num_prompts"]),
+                "object_category": RunnableLambda(lambda x: x["object_category"]),
             }
             | prompt_generation_prompt
             | self.llm
@@ -67,8 +67,8 @@ class ChainFactory:
 
     def create_prompt_summarization_chain(self):
         def format_prompts(prompts):
-            formatted_prompts = "\n,".join(
-                f"'{prompt}'" for prompt in prompts["prompts"]["prompts"]
+            formatted_prompts = "\n".join(
+                f"'{prompt}'," for prompt in prompts["prompts"]
             )
             return "[\n" + formatted_prompts + "\n]"
 
@@ -81,8 +81,8 @@ class ChainFactory:
             input_variables=["prompts"],  # List of prompts
         )
         chain: Runnable[List[str], str] = (
-            {
-                "prompts": RunnablePassthrough()
+        {
+            "prompts": RunnableLambda(lambda x: x["prompts"]) }
             | RunnableLambda(format_prompts)
             | prompt_summarization_prompt
             | self.llm

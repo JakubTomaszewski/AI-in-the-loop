@@ -7,13 +7,14 @@ Those strategies should be a set of guidelines for generating prompts that will 
 ## Rules:
 1. You **must** analyze the performance of the model and the summary of the prompts to generate a strategy for each class. This information is provided in the <class_information> section.
 2. You **must** generate a strategy for each class based on the performance of the model and the summary of the prompts.
-3. Be creative and think about how the prompts can be improved to generate more relevant synthetic images for each class. 
-4. The strategies **must** be short and concise but detailed and specific to each class.
-5. **do not** include information about the current prompts or the performance of the model in the strategy. Only generate a strategy for generating new prompts.
-6. You **must** **only** modify the background or setting around the object **do not** change the object itself. I.e. don't change the color, material or anything else related to the object.
-7. Be specific about the background or setting around the object. **do not** generate general or vague strategies like "Emphasize reflections on glossy surfaces and incorporate subtle decorative elements to highlight design details."
-8. The strategies **must** only guide the generation towards specific backgrounds and not towards specific features of the object itself. For instance, strategies mentioning "detailed", "glossy", "decorative", etc. elements of the object are not allowed.
-9. Do not mention the sks token in the strategy. It will be added automatically when generating prompts.
+3. You **must** identify prompts that perform well and those that do not, based on the performance of the model. Use this information to generate a strategy for each class.
+4. Be creative and think about how the prompts can be improved to generate more relevant synthetic images for each class. 
+5. The strategies **must** be short and concise but detailed and specific to each class.
+6. **do not** include information about the current prompts or the performance of the model in the strategy. Only generate a strategy for generating new prompts.
+7. You **must** **only** modify the background or setting around the object **do not** change the object itself. I.e. don't change the color, material or anything else related to the object.
+8. Be specific about the background or setting around the object. **do not** generate general or vague strategies like "Emphasize reflections on glossy surfaces and incorporate subtle decorative elements to highlight design details."
+9. The strategies **must** only guide the generation towards specific backgrounds and not towards specific features of the object itself. For instance, strategies mentioning "detailed", "glossy", "decorative", etc. elements of the object are not allowed.
+10. Do not mention the sks token in the strategy. It will be added automatically when generating prompts.
 
 
 # Output format
@@ -48,6 +49,8 @@ Format the output according to the following format:
 """
 
 STRATEGY_GENRATION_USER_PROMPT = """
+Generate a strategy for generating new prompts based on the provided class information:
+
 <class_information>
 {class_information}
 </class_information>
@@ -57,18 +60,18 @@ STRATEGY_GENRATION_USER_PROMPT = """
 PROMPT_GENERATION_PROMPT = """You are provided with a strategy for generating prompts marked <prompt_strategy>. The strategy is a set of guidelines for generating prompts that will be used for generating synthetic images. Those synthetic images are then used for training an image classification model using contrastive learning.
 
 # Instructions
-Based on the provided strategy, generate new prompts for each class that will be used for generating synthetic images.
+Based on the provided strategy, generate **{num_prompts}** new prompts that will be used for generating synthetic images.
 Each of the prompts **must** include the sks token and the object category name which is: "{object_category}". The rest of the prompt should be based on the strategy provided.
 The starting part of the prompt should be: "A sks {{object_category}}" + details about the object or scene.
 
 ## Rules:
 1. Generate prompts that are **only** relevant to the strategy provided in the <prompt_strategy> section.
-2. You **must** generate exactly {num_prompts} prompts for each class based on the strategy provided!
+2. You **must** generate exactly **{num_prompts}** prompts based on the strategy provided!
 3. You **must** enumerate the prompts to keep track of them. I.e. "Prompt 1: ...", "Prompt 2: ...", etc.
 4. Each prompt can have a maximum of 15 words.
 5. The prompts **must** be short and concise.
 6. Each prompt **must** be relevant to the base class. For instance, if the class is "mug with dots", the prompts should be related to the base class being a "mug", not the "dots".
-7. **only** modify the background or setting around the object. **do not** change the object itself. I.e. don't change the color, material or anything else related to the object.
+7. **Only** modify the background or setting around the object. **do not** change the object itself. I.e. don't change the color, material or anything else related to the object.
 8. The prompts **must** only guide the generation towards specific backgrounds and not towards specific features of the object itself. For instance, prompts mentioning "detailed", "glossy", "decorative", etc. elements of the object are not allowed.
 
 
@@ -107,6 +110,8 @@ Each prompt should be a separate string.
 """
 
 PROMPT_GENERATION_USER_PROMPT = """
+Generate prompts based on the provided strategy:
+
 <prompt_strategy>
 {prompt_strategy}
 </prompt_strategy>
@@ -123,11 +128,12 @@ Analyze the prompts and summarize them by identifying various aspects of the pro
 1. Analyze the prompts from the <prompts> section.
 2. Identify the common aspects and details of the prompts that are important for generating synthetic images.
 3. Describe the backgrounds, scenes, and scenarios in the prompts.
-4. You **must** be concise and use a maximum of 40 words.
-5. **do not** include any irrelevant information.
-6. **do not** mention the sks token in the summary.
-7. **do not** focus on the object itself, but rather on the background, scene, and scenarios.
-8. you **must** ignore the "sks" token and focus on the rest of the prompt.
+4. You **must** be specific when describing the backgrounds, scenes, and scenarios in the prompts.
+5. You **must** be concise and use a maximum of 40 words.
+6. **do not** include any irrelevant information.
+7. **do not** mention the sks token in the summary.
+8. **do not** focus on the object itself, but rather on the background, scene, and scenarios.
+9. you **must** ignore the "sks" token and focus on the rest of the prompt.
 
 
 # Output format
@@ -151,6 +157,8 @@ Only write the summary of the prompts. Do not write any code.
 
 
 PROMPT_SUMMARIZATION_USER_PROMPT = """
+Generate a summary of the following prompts:
+
 <prompts>
 {prompts}
 </prompts>
