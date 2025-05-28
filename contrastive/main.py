@@ -47,10 +47,8 @@ def parse_args():
 
     ### Contrastive learning options
     # Dataset
-    parser.add_argument("--synthetic_train_pathfile", type=str, default=None, 
-                        help="Pathfile for synthetic data: A JSON file mapping each class to a list of image paths (i.e., {class_id: [path list], ...}).")
-    parser.add_argument("--synthetic_train_root", type=str, default=None, 
-                        help="Root for synthetic data (see dataset README for expected structure). Cannot pass both a synthetic pathfile and a synthetic root.")
+    parser.add_argument("--positives_train_root", type=str, default=None, 
+                        help="Root for positive data (see dataset README for expected structure).")
     parser.add_argument("--negatives_root", type=str, default=None, help="Root for negative images.") 
     
     # Triplet Composition
@@ -130,6 +128,7 @@ def main(args, device):
     
     # Load dataset information and paths
     args.real_train_root = f"{args.real_data_root}/train"
+    args.positives_train_root = f"{args.positives_train_root}/train"
     if args.dataset_info:
         with open(args.dataset_info, "r") as f:
             class_info = json.load(f)
@@ -159,9 +158,7 @@ def main(args, device):
     setup_triplets(
         args.class_id, 
         args.pos_class_name,
-        args.dataset,
-        args.synthetic_train_pathfile,
-        args.synthetic_train_root,
+        args.positives_train_root,
         args.num_synthetic,
         args.negatives_root, 
         args.real_train_root,

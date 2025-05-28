@@ -104,14 +104,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--negatives_path",
-        type=str,
-        default="/scratch-shared/jtomaszewski/personalized_reps/pods_negatives/",
-        # default="./synthetic_data/pods/pods_negatives",,
-        help="Path to the negatives root directory.",
-    )
-
-    parser.add_argument(
         "--append_generated_data",
         action="store_true",
         help="Append generated data to existing data.",

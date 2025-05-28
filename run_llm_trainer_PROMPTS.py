@@ -68,7 +68,6 @@ def evaluate_class_performance(
     class_performance_output_path: str,
     dataset_metadata_path: str,
     template_file: str,
-    synthetic_data_path: str,
     negatives_path: str,
     evaluation_output_path: str,
     num_synthetic_samples: int,
@@ -78,7 +77,6 @@ def evaluate_class_performance(
         --template {template_file} \
         --output evaluate_scripts \
         --class_performance_output_path {class_performance_output_path} \
-        --synthetic_data_path {synthetic_data_path} \
         --negatives_path {negatives_path} \
         --num_synthetic_samples {num_synthetic_samples} \
         --num_triplets {num_synthetic_samples * 10} \
@@ -360,13 +358,13 @@ if __name__ == "__main__":
             if args.append_generated_data
             else args.num_synthetic_samples
         )
+        negatives_path = generate_data_output_path
 
         class_performance = evaluate_class_performance(
             class_performance_output_path,
             args.dataset_metadata_path,
             args.evaluation_template_file,
-            generate_data_output_path,
-            args.negatives_path,
+            negatives_path,
             args.evaluation_output_path,
             num_synthetic_samples,
         )

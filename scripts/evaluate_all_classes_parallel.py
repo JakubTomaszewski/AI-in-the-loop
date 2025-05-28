@@ -27,12 +27,6 @@ def parse_args():
         default="/scratch-shared/jtomaszewski/personalized_reps/evaluation_output",
     )
     parser.add_argument(
-        "--synthetic_data_path",
-        type=str,
-        help="Path to the synthetic data",
-        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/dreambooth_llm_sd1.5/cfg_5.0",
-    )
-    parser.add_argument(
         "--num_synthetic_samples",
         type=int,
         help="Number of synthetic samples to generate for each class",
@@ -111,7 +105,6 @@ if __name__ == "__main__":
             job_file = job_file.replace("${CLASS_NAME}", class_name)
             job_file = job_file.replace("${OUTPUT_PATH}", args.results_output)
             job_file = job_file.replace("${DATASET_METADATA}", args.metadata)
-            job_file = job_file.replace("${SYNTHETIC_DATA_PATH}", args.synthetic_data_path)
             job_file = job_file.replace("${NEGATIVES_PATH}", args.negatives_path)
             job_file = job_file.replace("${NUM_SYNTHETIC_SAMPLES}", str(args.num_synthetic_samples))
             job_file = job_file.replace("${NUM_TRIPLETS}", str(args.num_triplets))

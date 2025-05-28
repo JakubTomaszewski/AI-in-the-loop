@@ -22,7 +22,7 @@ python contrastive/main.py \
  --tag='full_train_eval' \
  --dataset='pods' \
  --real_data_root='./data/pods' \
- --synthetic_train_root='${SYNTHETIC_DATA_PATH}' \
+ --positives_train_root='./data/pods' \
  --negatives_root='${NEGATIVES_PATH}' \
  --output_path='${OUTPUT_PATH}' \
  --cache_dir='/scratch-shared/jtomaszewski/personalized_reps/cache' \
@@ -44,6 +44,3 @@ python contrastive/main.py \
  --patch_tokens \
  --use_existing_triplets \
  --train_use_existing_checkpoint
-
-
-#  --synthetic_train_root='/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/dreambooth_llm_sd1.5/cfg_5.0' \

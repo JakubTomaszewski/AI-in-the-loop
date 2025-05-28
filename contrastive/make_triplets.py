@@ -1,8 +1,8 @@
 import pandas as pd
-import glob
 import os
 import random
-from util.data_util import get_paths, load_pathfile, load_paths_from_root
+from util.data_util import get_paths
+
 
 def sample_triplet(triplet):
     """
@@ -17,10 +17,11 @@ def sample_triplet(triplet):
     ref, pos, neg = triplet
 
     # Randomly rearrange the positive and negative
-    if random.randint(1, 2)==1:
+    if random.randint(1, 2) == 1:
         return (ref, pos, neg), 0
     else:
         return (ref, neg, pos), 1
+
 
 def get_positives(synthetic_paths, real_paths, ref_type):
     """
@@ -40,89 +41,73 @@ def get_positives(synthetic_paths, real_paths, ref_type):
         ref_paths = synthetic_paths
     elif ref_type == "both":
         ref_paths = real_paths + synthetic_paths
-    
-    ref = random.sample(ref_paths, 1)[0] 
+
+    ref = random.sample(ref_paths, 1)[0]
     pos = random.sample(synthetic_paths, 1)[0]
     positives = [ref, pos]
-    return positives 
-    
+    return positives
+
+
 def get_negative(negative_paths):
     """
-    Sample a negative sample from a list containing negative samples 
+    Sample a negative sample from a list containing negative samples
     """
     return random.sample(negative_paths, 1)
 
+
 def setup_triplets(
-    cls, 
-    cls_name, 
-    dataset_name,
-    synthetic_pathfile, 
-    synthetic_root,
+    cls,
+    cls_name,
+    positives_root,
     num_synthetic,
-    negatives_root, 
-    real_train_root, 
-    num_triplets, 
-    save_path, 
+    negatives_root,
+    real_train_root,
+    num_triplets,
+    save_path,
     ref_type="real",
-    verbose=False
-    ):
+    verbose=False,
+):
     """
-    Sets up triplets for a given class by generating a dataset of triplets consisting of 
-    reference, positive, and negative images. The triplets will be used for training 
+    Sets up triplets for a given class by generating a dataset of triplets consisting of
+    reference, positive, and negative images. The triplets will be used for training
     contrastive learning models.
 
     Args:
         cls (int): Class id to make the triplet dataset for.
         cls_name (str): Corresponding class name.
-        dataset_name (str): Name of the dataset.
-        synthetic_pathfile (str): Pathfile form of synthetic data (i.e., {class_id: [path list], ...}).
-        synthetic_root (str): Root directory of synthetic data.
+        positives_root (str): Root directory of positive samples.
         num_synthetic (int): Number of synthetic positives to use.
         negatives_root (str): Root directory of negative samples.
         real_train_root (str): Root directory of real training data.
         num_triplets (int): Number of triplets to generate per class.
         save_path (str): Path to save the generated dataset CSV.
         ref_type (str, optional): Type of anchor image in each triplet, either "real" or "synthetic". Defaults to "real".
-    Raises:
-        ValueError: If both synthetic_pathfile and synthetic_root are provided.
-        ValueError: If neither synthetic_pathfile nor synthetic_root are provided.
     """
-    
-    print()
-    print(f"Running on class {cls}: {cls_name}")
+
+    print(f"\nRunning on class {cls}: {cls_name}")
     print(f"Using {num_synthetic} synthetic positives to make {num_triplets} triplets.")
     print("Saving to ", save_path)
 
-    # if dataset_name == "pods":
-    obj = cls_name.split("_")[0]
-    negatives_root = os.path.join(negatives_root, f"{obj}_negatives")
-    print(f"Getting negatives from {negatives_root}")
+    real_train_paths = os.path.join(real_train_root, cls_name)
+    positive_train_paths = os.path.join(positives_root, cls_name)
+    negative_train_paths = os.path.join(negatives_root, cls_name)
 
-    # Get positive and negative paths
-    negative_train_paths = get_paths(negatives_root)
-    real_train_paths = get_paths(os.path.join(real_train_root, cls_name))
+    print(f"Getting real from {real_train_paths}")
+    print(f"Getting positives from {positive_train_paths}")
+    print(f"Getting negatives from {negative_train_paths}")
 
-    if synthetic_pathfile is not None and synthetic_root is not None:
-        raise ValueError("Cannot use both a pathfile and a root")
-
-    if synthetic_pathfile is not None:
-        synthetic_train_paths = load_pathfile(synthetic_pathfile)[cls]
-    elif synthetic_root is not None:
-        synthetic_train_paths = load_paths_from_root(synthetic_root, cls_name, num_samples=num_synthetic)
-    else:
-        raise ValueError("No synthetic paths given.")
+    # Get sample paths
+    real_train_paths = get_paths(real_train_paths)
+    positive_train_paths = get_paths(positive_train_paths)
+    negative_train_paths = get_paths(negative_train_paths)
 
     # Sample triplets
-    random.shuffle(synthetic_train_paths)
-    synthetic_train_paths = synthetic_train_paths[:num_synthetic]
+    random.shuffle(real_train_paths)
+    random.shuffle(positive_train_paths)
+    random.shuffle(negative_train_paths)
 
-    if len(synthetic_train_paths) == 0:
-        print("WARNING: 0 synthetic paths, replacing with real")
-        synthetic_train_paths = real_train_paths
-    elif len(synthetic_train_paths) < num_synthetic:
-        print(f"WARNING: {len(synthetic_train_paths)} synthetic but supposed to be at least {num_synthetic}")
-
-    print(f"{len(synthetic_train_paths)} synthetic positives")
+    print(f"{len(real_train_paths)} real anchors")
+    print(f"{len(positive_train_paths)} synthetic positives")
     print(f"{len(negative_train_paths)} synthetic negatives")
 
     csv_dict = []
@@ -132,7 +117,7 @@ def setup_triplets(
     progress = 0
     while len(train_triplets) < num_triplets:
         negative = get_negative(negative_train_paths)
-        positives = get_positives(synthetic_train_paths, real_train_paths, ref_type)
+        positives = get_positives(positive_train_paths, real_train_paths, ref_type)
         train_triplets.append(positives + negative)
 
         new_progress = int(len(train_triplets) * 100 // num_triplets)
@@ -142,13 +127,15 @@ def setup_triplets(
 
     for i in range(num_triplets):
         (ref, left, right), label = sample_triplet(train_triplets[i])
-        csv_dict.append({
-            "id": i,
-            "label": label,
-            "ref_path": ref,
-            "left_path": left,
-            "right_path": right,
-        })
+        csv_dict.append(
+            {
+                "id": i,
+                "label": label,
+                "ref_path": ref,
+                "left_path": left,
+                "right_path": right,
+            }
+        )
 
     csv = pd.concat([pd.DataFrame(csv_dict)])
     csv.to_csv(save_path, index=False)
