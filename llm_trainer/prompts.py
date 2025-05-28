@@ -51,9 +51,7 @@ Format the output according to the following format:
 STRATEGY_GENRATION_USER_PROMPT = """
 Generate a strategy for generating new prompts based on the provided class information:
 
-<class_information>
 {class_information}
-</class_information>
 """
 
 

@@ -33,8 +33,24 @@ class ChainFactory:
                 "output_format": strategy_generation_output_parser.get_format_instructions()
             },
         )
+
+        def class_info_to_xml(input_data):
+            ci_obj = input_data["class_information"]
+            xml_lines = ["<class_information>"]
+            for class_name, details in ci_obj.class_details.items():
+                xml_lines.append(f"  <class name='{class_name}'>")
+                xml_lines.append(f"    <performance>{details.performance}</performance>")
+                xml_lines.append(f"    <prompt_summary>{details.prompt_summary}</prompt_summary>")
+                xml_lines.append("  </class>")
+            xml_lines.append("</class_information>")
+
+            new_data = input_data.copy()
+            new_data["class_information"] = "\n".join(xml_lines)
+            return new_data
+
         chain: Runnable[ClassInformation, PromptStrategy] = (
             {"class_information": RunnableLambda(lambda x: x["class_information"])}
+            | RunnableLambda(class_info_to_xml)
             | strategy_generation_prompt
             | self.llm
             | strategy_generation_output_parser
