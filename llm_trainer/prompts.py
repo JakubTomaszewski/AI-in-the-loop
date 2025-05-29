@@ -81,9 +81,9 @@ Each prompt should be a separate string.
 # Examples
 
 ## Example 1
-<prompt_strategy>
+<example_prompt_strategy>
 "Generate prompts that have different, forest-like backgrounds. For example, 'A ... sks {{object_category}}' + details about the forest-like background."
-</prompt_strategy>
+</example_prompt_strategy>
 
 <output>
 [
@@ -131,7 +131,8 @@ Analyze the prompts and summarize them by identifying various aspects of the pro
 6. **do not** include any irrelevant information.
 7. **do not** mention the sks token in the summary.
 8. **do not** focus on the object itself, but rather on the background, scene, and scenarios.
-9. you **must** ignore the "sks" token and focus on the rest of the prompt.
+9. **do not** say that the prompts are diverse, but identify common aspects and details and point them out.
+10. you **must** ignore the "sks" token and focus on the rest of the prompt.
 
 
 # Output format

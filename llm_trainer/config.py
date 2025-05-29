@@ -41,9 +41,17 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--llm_model",
+        type=str,
+        default="o3-mini",
+        # default="gpt-4.1",
+        help="LLM model to use for generation.",
+    )
+
+    parser.add_argument(
         "--temperature",
         type=float,
-        default=0.3,
+        default=None,
         help="Temperature for the model",
     )
 
@@ -60,7 +68,7 @@ def parse_args():
         help="Output path for generated prompts",
         default="/home/jtomaszewski/personalized-rep/llm_trainer_metadata/PROMPTS/{timestamp}/iteration_{iteration_number}/prompts.json",
     )
-    
+
     parser.add_argument(
         "--evaluation_output_path",
         type=str,
@@ -95,7 +103,7 @@ def parse_args():
         default="/scratch-shared/jtomaszewski/personalized_reps/cache/",
         help="Path to the cache directory.",
     )
-    
+
     parser.add_argument(
         "--embeddings_dir",
         type=str,
@@ -115,6 +123,12 @@ def parse_args():
         "--append_generated_data",
         action="store_true",
         help="Append generated data to existing data.",
+    )
+
+    parser.add_argument(
+        "--without_prompt_strategies",
+        action="store_true",
+        help="If set, the prompt strategies will not be used in the generation process.",
     )
 
     return parser.parse_args()

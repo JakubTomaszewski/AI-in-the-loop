@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     logger.info(f"Running LLM trainer for {len(class_names)} classes: {class_names}")
 
-    llm = ChatOpenAI(model="o3-mini")
+    llm = ChatOpenAI(model=args.llm_model, temperature=args.temperature)
     chain_factory = ChainFactory(llm)
 
     # Strategy generation
