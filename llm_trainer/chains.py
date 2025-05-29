@@ -1,16 +1,20 @@
 from enum import Enum
-from llm_trainer import prompts
+from typing import Callable, List
 
-from typing import List
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableLambda
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable, RunnableLambda, RunnablePassthrough
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables.utils import ConfigurableFieldSpec
 
-from llm_trainer.data_types import ClassInformation, PromptStrategy, Prompts
+from . import prompts
+from .data_types import ClassInformation, Prompts, PromptStrategy
+from .utils import class_info_to_xml
 
 
 class ChainType(Enum):
     STRATEGY_GENERATION = "strategy_generation"
+    STRATEGY_GENERATION_WITH_HISTORY = "strategy_generation_with_history"
     PROMPT_GENERATION = "prompt_generation"
     PROMPT_SUMMARIZATION = "prompt_summarization"
 
@@ -18,6 +22,48 @@ class ChainType(Enum):
 class ChainFactory:
     def __init__(self, llm):
         self.llm = llm
+
+    def create_strategy_generation_with_history_chain(self, get_chat_history: Callable):
+        strategy_generation_output_parser = PydanticOutputParser(
+            pydantic_object=PromptStrategy
+        )
+        strategy_generation_prompt = ChatPromptTemplate(
+            messages=[
+                ("system", prompts.STRATEGY_GENRATION_PROMPT),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", prompts.STRATEGY_GENRATION_USER_PROMPT),
+            ],
+            input_variables=["class_information"],
+            partial_variables={
+                "output_format": strategy_generation_output_parser.get_format_instructions(),
+            },
+        )
+
+        chain: Runnable[ClassInformation, PromptStrategy] = (
+            {"class_information": RunnableLambda(lambda x: x["class_information"]), "chat_history": RunnableLambda(lambda x: x["chat_history"])}
+            # | RunnableLambda(class_info_to_xml)
+            | strategy_generation_prompt
+            | self.llm
+            | strategy_generation_output_parser
+        )
+
+        chain_with_history = RunnableWithMessageHistory(
+            chain,
+            get_chat_history,
+            input_messages_key="class_information",
+            history_messages_key="chat_history",
+            history_factory_config=[
+                ConfigurableFieldSpec(
+                    id="session_id",
+                    annotation=str,
+                    name="session ID",
+                    description="Unique identifier for the session.",
+                    default="",
+                    is_shared=True,
+                )
+            ],
+        )
+        return chain_with_history
 
     def create_strategy_generation_chain(self):
         strategy_generation_output_parser = PydanticOutputParser(
@@ -33,20 +79,6 @@ class ChainFactory:
                 "output_format": strategy_generation_output_parser.get_format_instructions()
             },
         )
-
-        def class_info_to_xml(input_data):
-            ci_obj = input_data["class_information"]
-            xml_lines = ["<class_information>"]
-            for class_name, details in ci_obj.class_details.items():
-                xml_lines.append(f"  <class name='{class_name}'>")
-                xml_lines.append(f"    <performance>{details.performance}</performance>")
-                xml_lines.append(f"    <prompt_summary>{details.prompt_summary}</prompt_summary>")
-                xml_lines.append("  </class>")
-            xml_lines.append("</class_information>")
-
-            new_data = input_data.copy()
-            new_data["class_information"] = "\n".join(xml_lines)
-            return new_data
 
         chain: Runnable[ClassInformation, PromptStrategy] = (
             {"class_information": RunnableLambda(lambda x: x["class_information"])}
@@ -97,8 +129,7 @@ class ChainFactory:
             input_variables=["prompts"],  # List of prompts
         )
         chain: Runnable[List[str], str] = (
-        {
-            "prompts": RunnableLambda(lambda x: x["prompts"]) }
+            {"prompts": RunnableLambda(lambda x: x["prompts"])}
             | RunnableLambda(format_prompts)
             | prompt_summarization_prompt
             | self.llm
@@ -106,12 +137,14 @@ class ChainFactory:
         )
         return chain
 
-    def create_chain(self, chain_type: ChainType):
+    def create_chain(self, chain_type: ChainType, **kwargs) -> Runnable:
         if chain_type == ChainType.STRATEGY_GENERATION:
-            return self.create_strategy_generation_chain()
+            return self.create_strategy_generation_chain(**kwargs)
+        elif chain_type == ChainType.STRATEGY_GENERATION_WITH_HISTORY:
+            return self.create_strategy_generation_with_history_chain(**kwargs)
         elif chain_type == ChainType.PROMPT_GENERATION:
-            return self.create_prompt_generation_chain()
+            return self.create_prompt_generation_chain(**kwargs)
         elif chain_type == ChainType.PROMPT_SUMMARIZATION:
-            return self.create_prompt_summarization_chain()
+            return self.create_prompt_summarization_chain(**kwargs)
         else:
             raise ValueError(f"Unknown chain type: {chain_type}")
