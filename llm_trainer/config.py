@@ -21,7 +21,8 @@ def parse_args():
     parser.add_argument(
         "--dataset_metadata_path",
         type=str,
-        default="/home/jtomaszewski/personalized-rep/data/pods/metadata_subset.json",
+        # default="/home/jtomaszewski/personalized-rep/data/pods/metadata_subset.json",
+        default="/home/jtomaszewski/personalized-rep/data/dogs/metadata.json",
         help="Path to the dataset metadata file.",
     )
 
@@ -59,7 +60,8 @@ def parse_args():
         "--generate_data_output_path",
         type=str,
         help="Output path for generated data",
-        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_lora/",
+        # default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_lora/",
+        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/dogs/sd3_lora/",
     )
 
     parser.add_argument(
@@ -112,10 +114,26 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--dataset_name",
+        type=str,
+        choices=["pods", "dogs", "df2"],
+        default="dogs",
+        help="Name of the dataset to use.",
+    )
+
+    parser.add_argument(
+        "--real_data_path",
+        type=str,
+        # default='./data/pods',
+        default="./data/dogs",
+        help="Path to the real data directory.",
+    )
+
+    parser.add_argument(
         "--negatives_path",
         type=str,
-        default="/scratch-shared/jtomaszewski/personalized_reps/pods_negatives/",
-        # default="./synthetic_data/pods/pods_negatives",,
+        # default="/scratch-shared/jtomaszewski/personalized_reps/pods_negatives/",
+        default="/scratch-shared/jtomaszewski/personalized_reps/dogs_negatives/",
         help="Path to the negatives root directory.",
     )
 

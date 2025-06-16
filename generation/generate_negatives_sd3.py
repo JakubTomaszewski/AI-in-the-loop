@@ -1,7 +1,6 @@
 from diffusers import StableDiffusion3Pipeline
 
 import os
-import shutil
 import argparse
 import json
 import torch
@@ -18,13 +17,15 @@ def parse_args():
     parser.add_argument(
         "--prompts_file",
         type=str,
-        default="configs/prompts/gpt_negative_prompts_pods.json",
+        # default="configs/prompts/gpt_negative_prompts_pods.json",
+        default="configs/prompts/gpt_negative_prompts_dogs.json",
     )
 
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="/scratch-shared/jtomaszewski/personalized_reps/pods_negatives/",
+        # default="/scratch-shared/jtomaszewski/personalized_reps/pods_negatives/",
+        default="/scratch-shared/jtomaszewski/personalized_reps/dogs_negatives/",
     )
 
     return parser.parse_args()
@@ -39,7 +40,8 @@ if __name__ == "__main__":
     pipe = pipe.to("cuda")
 
     if os.path.exists(args.output_dir):
-        shutil.rmtree(args.output_dir)
+        print(f"Output directory {args.output_dir} already exists. Exiting.")
+        exit()
 
     os.makedirs(args.output_dir)
 

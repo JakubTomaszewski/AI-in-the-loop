@@ -4,10 +4,20 @@
 
 ### Training the generation model (DreamBooth):
 
+- PODS
+
 ```
 cd jobs/train_dreambooth/
 
 python train_dreambooth_all_classes_parallel.py --template train_dreambooth_sd3_lora_template.job  --metadata ../../data/pods/metadata_subset.json --output train_dreambooth_sd3_scripts
+```
+
+- DOGS
+
+```
+cd jobs/train_dreambooth/
+
+python train_dreambooth_all_classes_parallel.py --template train_dreambooth_sd3_lora_template_dogs.job --metadata ../../data/dogs/metadata.json --output train_dreambooth_sd3_dogs_scripts
 ```
 
 ### Running the personalized representation pipeline

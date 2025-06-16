@@ -20,8 +20,8 @@ python contrastive/main.py \
  --pos_class_name='${CLASS_NAME}' \
  --seed='1234' \
  --tag='full_train_eval' \
- --dataset='pods' \
- --real_data_root='./data/pods' \
+ --dataset='${DATASET_NAME}' \
+ --real_data_root='${REAL_DATA_PATH}' \
  --synthetic_train_root='${SYNTHETIC_DATA_PATH}' \
  --negatives_root='${NEGATIVES_PATH}' \
  --output_path='${OUTPUT_PATH}' \
