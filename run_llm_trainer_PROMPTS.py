@@ -68,21 +68,25 @@ def evaluate_class_performance(
     class_performance_output_path: str,
     dataset_metadata_path: str,
     template_file: str,
+    real_data_path: str,
     synthetic_data_path: str,
     negatives_path: str,
     evaluation_output_path: str,
     num_synthetic_samples: int,
+    dataset_name: str,
 ):
     evaluation_script = f"""python scripts/evaluate_all_classes_parallel.py \
         --metadata {dataset_metadata_path} \
         --template {template_file} \
         --output evaluate_scripts \
         --class_performance_output_path {class_performance_output_path} \
+        --real_data_path {real_data_path} \
         --synthetic_data_path {synthetic_data_path} \
         --negatives_path {negatives_path} \
         --num_synthetic_samples {num_synthetic_samples} \
         --num_triplets {num_synthetic_samples * 10} \
         --results_output {evaluation_output_path} \
+        --dataset_name {dataset_name} \
         --log_file {log_file}
     """
 
@@ -362,13 +366,15 @@ if __name__ == "__main__":
         )
 
         class_performance = evaluate_class_performance(
-            class_performance_output_path,
-            args.dataset_metadata_path,
-            args.evaluation_template_file,
-            generate_data_output_path,
-            args.negatives_path,
-            args.evaluation_output_path,
-            num_synthetic_samples,
+            class_performance_output_path=class_performance_output_path,
+            dataset_metadata_path=args.dataset_metadata_path,
+            template_file=args.evaluation_template_file,
+            real_data_path=args.real_data_path,
+            synthetic_data_path=generate_data_output_path,
+            negatives_path=args.negatives_path,
+            evaluation_output_path=args.evaluation_output_path,
+            num_synthetic_samples=num_synthetic_samples,
+            dataset_name=args.dataset_name,
         )
 
         logger.info(

@@ -20,13 +20,11 @@ def parse_args():
         "--generate_data_output_path",
         type=str,
         help="Output path for generated data",
-        # default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods",
     )
     parser.add_argument(
         "--prompts_path",
         type=str,
         help="Path to the prompts file",
-        # default="./configs/prompts/gpt_prompts_pods.json",
     )
     parser.add_argument(
         "--num_samples",
@@ -54,7 +52,7 @@ def check_job_status(job_ids):
 
 if __name__ == "__main__":
     args = parse_args()
-    
+
     logger.info(f"Running script with arguments: {args}")
 
     if args.wait_time is None:

@@ -9,7 +9,7 @@ from loguru import logger
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run all classes in a dataset")
-    parser.add_argument("--metadata", type=str, help="Metadata file for the dataset", default="./data/pods/metadata.json")
+    parser.add_argument("--metadata", type=str, help="Metadata file for the dataset")
     parser.add_argument("--template", type=str, help="Job file template")
     parser.add_argument("--output", type=str, help="Output directory for job files")
     parser.add_argument(
@@ -30,7 +30,6 @@ def parse_args():
         "--synthetic_data_path",
         type=str,
         help="Path to the synthetic data",
-        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/dreambooth_llm_sd1.5/cfg_5.0",
     )
     parser.add_argument(
         "--num_synthetic_samples",
@@ -51,7 +50,20 @@ def parse_args():
         help="Log file for the script",
         default="generate_data_all_classes_parallel_PROMPTS.log",
     )
-    
+
+    parser.add_argument(
+        "--dataset_name",
+        type=str,
+        help="Name of the dataset",
+        choices=["pods", "dogs", "df2"],
+    )
+
+    parser.add_argument(
+        "--real_data_path",
+        type=str,
+        help="Path to the real data",
+    )
+
     parser.add_argument(
         "--negatives_path",
         type=str,
@@ -111,10 +123,16 @@ if __name__ == "__main__":
             job_file = job_file.replace("${CLASS_NAME}", class_name)
             job_file = job_file.replace("${OUTPUT_PATH}", args.results_output)
             job_file = job_file.replace("${DATASET_METADATA}", args.metadata)
-            job_file = job_file.replace("${SYNTHETIC_DATA_PATH}", args.synthetic_data_path)
+            job_file = job_file.replace(
+                "${SYNTHETIC_DATA_PATH}", args.synthetic_data_path
+            )
             job_file = job_file.replace("${NEGATIVES_PATH}", args.negatives_path)
-            job_file = job_file.replace("${NUM_SYNTHETIC_SAMPLES}", str(args.num_synthetic_samples))
+            job_file = job_file.replace(
+                "${NUM_SYNTHETIC_SAMPLES}", str(args.num_synthetic_samples)
+            )
             job_file = job_file.replace("${NUM_TRIPLETS}", str(args.num_triplets))
+            job_file = job_file.replace("${DATASET_NAME}", args.dataset_name)
+            job_file = job_file.replace("${REAL_DATA_PATH}", args.real_data_path)
             f.write(job_file)
 
         # Run sbatch output_job_file_path
@@ -128,15 +146,24 @@ if __name__ == "__main__":
         # Wait until the job is finished
         sleep(200)
         check_job_status([job_id])
-        
+
         # If the slurm output does not exist or contains an error or has been cancelled, retry
         slurm_output_file = f"slurm_output_{job_id}.out"
-        if not os.path.exists(slurm_output_file) or "State: ERROR" in open(slurm_output_file).read() or "State: CANCELLED" in open(slurm_output_file).read():
+        if (
+            not os.path.exists(slurm_output_file)
+            or "State: ERROR" in open(slurm_output_file).read()
+            or "State: CANCELLED" in open(slurm_output_file).read()
+            or not os.path.exists(
+                os.path.join(args.results_output, class_name, "results.json")
+            )
+            # or not os.path.getsize(os.path.join(args.results_output, class_name, "results.json"))
+            # or not os.path.isfile(os.path.join(args.results_output, class_name, "results.json")
+        ):
             logger.info(f"Job {job_id} failed or was cancelled. Retrying...")
             job_id = submit_job(output_job_file_path)
             logger.info(f"Retrying job ID: {job_id}")
             job_ids.append(job_id)
-            
+
             # Wait until the job is finished
             sleep(200)
             check_job_status([job_id])
@@ -148,9 +175,7 @@ if __name__ == "__main__":
     output_results_combined = {}
 
     for class_name in metadata.keys():
-        results_file = os.path.join(
-            args.results_output, class_name, "results.json"
-        )
+        results_file = os.path.join(args.results_output, class_name, "results.json")
 
         with open(results_file, "r") as f:
             result = json.load(f)

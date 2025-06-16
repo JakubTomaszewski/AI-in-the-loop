@@ -19,8 +19,6 @@ def parse_args():
         "--path",
         type=str,
         help="Path to the main directory containing class subdirectories",
-        # default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/2025-03-16_20-31/iteration_3/dreambooth_llm_sd1.5/cfg_5.0",
-        default="/scratch-shared/jtomaszewski/personalized_reps/synthetic_data/pods/sd3_lora/2025-04-28_23-58/iteration_3",
     )
     parser.add_argument(
         "--device",
@@ -95,10 +93,18 @@ def main():
 
     clip_scores_by_class = {}
     all_scores = []
+    
+    with open("sd_15_clip_scores.json", "r") as f:
+        sd_15_clip_scores = json.load(f)
+    print(f"Loaded {len(sd_15_clip_scores)} CLIP scores from sd_15_clip_scores.json")
 
     for dir_name in tqdm(class_dirs, desc="Processing directories"):
         print(f"Processing class: {dir_name}")
         class_dir = os.path.join(args.path, dir_name)
+        
+        if dir_name not in sd_15_clip_scores["class_scores"]:
+            print(f"Skipping class {dir_name} as it is not in sd_15_clip_scores.json")
+            continue
 
         # Skip if not a directory
         if not os.path.isdir(class_dir):

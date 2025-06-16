@@ -17,3 +17,5 @@ done.txt
 
 diffusers/
 train_dreambooth_sd3_scripts/
+jobs/train_dreambooth/
+results/

@@ -93,8 +93,14 @@ def setup_triplets(
     print(f"Using {num_synthetic} synthetic positives to make {num_triplets} triplets.")
     print("Saving to ", save_path)
 
-    # if dataset_name == "pods":
-    obj = cls_name.split("_")[0]
+    if dataset_name == "pods":
+        obj = cls_name.split("_")[0]
+    
+    elif dataset_name == "dogs":
+        obj = "dogs"
+    elif dataset_name == "df2":
+        obj = "shirt"
+    
     negatives_root = os.path.join(negatives_root, f"{obj}_negatives")
     print(f"Getting negatives from {negatives_root}")
 
