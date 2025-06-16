@@ -177,31 +177,6 @@ async def summarize_all_classes(class_names, generated_prompts: dict) -> dict[st
     return {class_name: result for class_name, result in zip(class_names, results)}
 
 
-# TODO: Potentially refactor the functions above to be one function as below
-# async def run_async(chain: Runnable, class_names, **kwargs) -> dict[str, str]:
-#     @backoff.on_exception(backoff.expo, Exception, max_time=300, max_tries=5)
-#     async def invoke_chain(class_name: str) -> str:
-#         return await chain.ainvoke(**kwargs)
-
-#     tasks = [invoke_chain(class_name) for class_name in class_names]
-#     results = await asyncio.gather(*tasks)
-#     return dict(zip(class_names, results))
-
-
-# async def summarize_all_classes(class_names) -> dict[str, str]:
-#     return await run_async(
-#         prompt_summarization_chain,
-#         class_names,
-#         prompts=lambda class_name: generated_prompts[class_name],
-#     )
-
-
-# async def generate_prompts_all_classes(class_names) -> dict[str, str]:
-#     return await run_async(
-#         prompt_generation_chain, class_names, prompt_strategy=prompt_generation_strategy
-#     )
-
-
 def parse_prompt(prompt_str):
     """
     Removes the 'Prompt NUMBER:' prefix from the prompt string.
